@@ -4,8 +4,9 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.TimeUtils;
+import com.mygdx.tankgame.enemies.EnemyTank;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,96 +15,120 @@ public class Tank {
     private Texture tankTexture;
     private Sprite sprite;
     private Vector2 position;
-    private float rotation; // Tank's rotation angle
-    private float speed = 200f; // Adjust speed as needed
-    private long lastShotTime = 0;
-    private float shotCooldown = 0.3f; // 300ms cooldown
-    private boolean isDestroyed = false; // Flag to track if the tank is destroyed
-    private List<Explosion> explosions;  // List of explosions triggered when the tank is destroyed
+    private float rotation;
+    private float speed = 200f; // Normal speed
+    private float dashSpeed = 600f; // Speed when dashing
+    private float dashDuration = 0.2f; // Dash lasts for 0.2 seconds
+    private float dashCooldown = 1.0f; // Cooldown between dashes
+    private float dashTimeRemaining = 0f; // Time left in dash
+    private float dashCooldownRemaining = 0f; // Cooldown tracker
+    private int dashCharges = 3; // Default dash charges
+    private int maxHealth = 3;
+    private int currentHealth = maxHealth;
+    private boolean isDestroyed = false;
+
+    private List<Explosion> explosions;
 
     public Tank(float x, float y) {
-        tankTexture = new Texture("tank.png"); // Ensure correct path
+        tankTexture = new Texture("tank.png");
         sprite = new Sprite(tankTexture);
-
-        // Set fixed dimensions instead of scaling
-        sprite.setSize(64, 64); // Example: Setting width and height to 64x64 pixels
-
+        sprite.setSize(64, 64);
         position = new Vector2(x, y);
         sprite.setPosition(position.x, position.y);
-        sprite.setOriginCenter(); // Ensure rotation is centered
+        sprite.setOriginCenter();
         explosions = new ArrayList<>();
     }
 
-    public void update(float deltaTime, List<Bullet> bullets, EnemyTank enemyTank) {
-        if (isDestroyed) {
-            return; // Nếu xe tăng bị phá hủy, không thực hiện cập nhật
-        }
+    public void update(float deltaTime, List<Bullet> bullets, List<EnemyTank> enemyTanks) {
+        if (isDestroyed) return;
 
-        // Xử lý di chuyển
+        // Handle dash cooldown
+        if (dashCooldownRemaining > 0) dashCooldownRemaining -= deltaTime;
+
         float moveX = 0, moveY = 0;
         if (Gdx.input.isKeyPressed(Input.Keys.W)) moveY += 1;
         if (Gdx.input.isKeyPressed(Input.Keys.S)) moveY -= 1;
         if (Gdx.input.isKeyPressed(Input.Keys.A)) moveX -= 1;
         if (Gdx.input.isKeyPressed(Input.Keys.D)) moveX += 1;
 
-        if (moveX != 0 || moveY != 0) {
-            Vector2 direction = new Vector2(moveX, moveY).nor();
-            position.add(direction.scl(speed * deltaTime));
+        // Handle dashing
+        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+            attemptDash();
         }
 
-        // Giới hạn xe tăng trong màn hình
+        float currentSpeed = (dashTimeRemaining > 0) ? dashSpeed : speed;
+        if (moveX != 0 || moveY != 0) {
+            Vector2 direction = new Vector2(moveX, moveY).nor();
+            position.add(direction.scl(currentSpeed * deltaTime));
+        }
+
+        // Dash duration logic
+        if (dashTimeRemaining > 0) {
+            dashTimeRemaining -= deltaTime;
+            if (dashTimeRemaining <= 0) {
+                dashTimeRemaining = 0;
+            }
+        }
+
         position.x = Math.max(0, Math.min(Gdx.graphics.getWidth() - sprite.getWidth(), position.x));
         position.y = Math.max(0, Math.min(Gdx.graphics.getHeight() - sprite.getHeight(), position.y));
-
         sprite.setPosition(position.x, position.y);
 
-        // Lấy vị trí chuột và xoay xe tăng
         float mouseX = Gdx.input.getX();
         float mouseY = Gdx.graphics.getHeight() - Gdx.input.getY();
-        float angle = (float) Math.toDegrees(Math.atan2(mouseY - (position.y + sprite.getHeight() / 2),
+        rotation = (float) Math.toDegrees(Math.atan2(mouseY - (position.y + sprite.getHeight() / 2),
             mouseX - (position.x + sprite.getWidth() / 2)));
 
-        rotation = angle;
         sprite.setRotation(rotation);
 
-        // Kiểm tra va chạm với đạn kẻ địch
-        checkBulletCollision(enemyTank.getBullets(), explosions);
-
-        // Kiểm tra va chạm với xe tăng địch
-        if (enemyTank.getBoundingRectangle().overlaps(sprite.getBoundingRectangle())) {
-            triggerExplosion();
+        for (EnemyTank enemyTank : enemyTanks) {
+            checkBulletCollision(enemyTank.getBullets());
+            if (enemyTank.getBoundingRectangle().overlaps(getBoundingRectangle())) {
+                takeDamage(1);
+            }
         }
     }
 
-
-    public void checkBulletCollision(List<Bullet> enemyBullets, List<Explosion> explosions) {
+    public void checkBulletCollision(List<Bullet> enemyBullets) {
         for (Bullet bullet : enemyBullets) {
-            if (bullet.getBoundingRectangle().overlaps(sprite.getBoundingRectangle())) {
-                explosions.add(new Explosion(position.x, position.y));
-                isDestroyed = true;
+            if (bullet.getBoundingRectangle().overlaps(getBoundingRectangle())) {
+                takeDamage(1);
                 enemyBullets.remove(bullet);
                 break;
             }
         }
     }
 
-
-    private void triggerExplosion() {
-        if (!isDestroyed) { // Ensure explosion triggers only once
-            explosions.add(new Explosion(position.x, position.y));
-            isDestroyed = true;
-            System.out.println("Player tank destroyed! Trigger explosion.");
+    private void takeDamage(int amount) {
+        currentHealth -= amount;
+        if (currentHealth <= 0) {
+            triggerExplosion();
         }
     }
 
-
-    public void draw(com.badlogic.gdx.graphics.g2d.SpriteBatch batch) {
+    private void triggerExplosion() {
         if (!isDestroyed) {
-            sprite.draw(batch);
+            explosions.add(new Explosion(position.x, position.y));
+            isDestroyed = true;
+            System.out.println("Tank destroyed!");
         }
-        for (Explosion explosion : explosions) {
-            explosion.draw(batch); // Draw each explosion
+    }
+
+    private void attemptDash() {
+        if (dashCharges > 0 && dashCooldownRemaining <= 0) {
+            dashTimeRemaining = dashDuration;
+            dashCharges--;
+            dashCooldownRemaining = dashCooldown;
+            System.out.println("Dashing! Charges left: " + dashCharges);
         }
+    }
+
+    public void applyUpgrade(int dashIncrease, int healthIncrease, float speedIncrease) {
+        dashCharges += dashIncrease;
+        maxHealth += healthIncrease;
+        currentHealth = Math.min(currentHealth + healthIncrease, maxHealth);
+        speed += speedIncrease; // Increase speed
+        System.out.println("Upgrade applied! Dash: " + dashCharges + ", Health: " + currentHealth + "/" + maxHealth + ", Speed: " + speed);
     }
 
     public void shoot(List<Bullet> bullets) {
@@ -126,20 +151,30 @@ public class Tank {
         Bullet bullet = new Bullet(bulletX, bulletY, rotation, false);
         bullets.add(bullet);
     }
-
-    public float getRotation() {
-        return rotation;
+    public void draw(com.badlogic.gdx.graphics.g2d.SpriteBatch batch) {
+        if (!isDestroyed) {
+            sprite.draw(batch);
+        }
+        for (Explosion explosion : explosions) {
+            explosion.draw(batch);
+        }
     }
-
     public Vector2 getPosition() {
         return position;
     }
-
     public boolean isDestroyed() {
         return isDestroyed;
     }
 
     public void dispose() {
         tankTexture.dispose();
+    }
+
+    public Rectangle getBoundingRectangle() {
+        return new Rectangle(position.x, position.y, sprite.getWidth(), sprite.getHeight());
+    }
+
+    public int getCurrentHealth() {
+        return  currentHealth;
     }
 }

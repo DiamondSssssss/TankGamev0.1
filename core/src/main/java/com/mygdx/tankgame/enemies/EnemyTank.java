@@ -1,4 +1,4 @@
-package com.mygdx.tankgame;
+package com.mygdx.tankgame.enemies;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
@@ -7,22 +7,26 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.mygdx.tankgame.Bullet;
+import com.mygdx.tankgame.Explosion;
+import com.mygdx.tankgame.Tank;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 public class EnemyTank {
-    private Texture texture;
-    private Sprite sprite;
-    private Vector2 position;
+    protected Texture texture;
+    protected Sprite sprite;
+    protected Vector2 position;
     private Vector2 targetPosition;
-    private float speed = 100f;
+    protected float speed = 100f;
     private float fireCooldown = 2f;
     private float timeSinceLastShot = 0f;
-    private Tank player;
+    protected Tank player;
     private List<Bullet> bullets;
     private boolean isDestroyed = false;
-    private boolean isExploding = false;
+    boolean isExploding = false;
     private float explosionTimer = 1.5f; // 1.5 seconds explosion animation
 
     public Rectangle getBoundingRectangle() {
@@ -175,8 +179,19 @@ public class EnemyTank {
     public boolean isDestroyed() {
         return isDestroyed;
     }
+    public void setDestroyed(boolean destroyed) {
+        this.isDestroyed = destroyed;
+    }
 
     public void dispose() {
         texture.dispose();
+    }
+    // ✅ Add explosion timer getter & setter
+    public float getExplosionTimer() {
+        return explosionTimer;
+    }
+
+    public void setExplosionTimer(float explosionTimer) {
+        this.explosionTimer = explosionTimer;
     }
 }

@@ -1,12 +1,14 @@
 package com.mygdx.tankgame.levels;
 
-import com.mygdx.tankgame.EnemyTank;
+import com.mygdx.tankgame.Tank;
+import com.mygdx.tankgame.UpgradeScreen;
+import com.mygdx.tankgame.enemies.EnemyTank;
 import com.mygdx.tankgame.LevelScreen;
 import com.mygdx.tankgame.TankGame;
 
 public class Level1Screen extends LevelScreen {
-    public Level1Screen(TankGame game) {
-        super(game);
+    public Level1Screen(TankGame game, Tank playerTank) {
+        super(game, playerTank);
     }
 
     @Override
@@ -15,7 +17,7 @@ public class Level1Screen extends LevelScreen {
     }
 
     @Override
-    protected void goToNextLevel() {
-        game.setScreen(new Level2Screen(game));  // Move to Level 2
+    protected void goToUpgradeScreen() {
+        game.setScreen(new UpgradeScreen(game, playerTank, 1)); // Go to UpgradeScreen before Level 2
     }
 }

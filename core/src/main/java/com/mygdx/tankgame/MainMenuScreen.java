@@ -8,6 +8,8 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Music;
+import com.mygdx.tankgame.levels.Level1Screen;
+import com.mygdx.tankgame.levels.Level3Screen;
 
 public class MainMenuScreen implements Screen {
     private TankGame game;
@@ -40,7 +42,7 @@ public class MainMenuScreen implements Screen {
         batch.end();
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
-            game.setScreen(new GameScreen(game)); // Fix: Pass game to GameScreen
+            game.setScreen(new Level1Screen(game,new Tank(100,100))); // Fix: Pass game to GameScreen
         }
     }
 
