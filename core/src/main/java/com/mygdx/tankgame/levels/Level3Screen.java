@@ -16,8 +16,8 @@ public class Level3Screen extends LevelScreen {
 
     @Override
     protected void setupLevel() {
-        //enemies.add(new BossTank(500, 500, playerTank,game));
-        enemies.add(new EnemyTank(300, 300, playerTank,bullets));
+        enemies.add(new BossTank(500, 500, playerTank,game,bullets));
+        //enemies.add(new EnemyTank(300, 300, playerTank,bullets));
     }
 
 

@@ -3,9 +3,12 @@ package com.mygdx.tankgame;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.mygdx.tankgame.enemies.BossTank;
 import com.mygdx.tankgame.enemies.ChaserTank;
 import com.mygdx.tankgame.enemies.EnemyTank;
 
@@ -28,6 +31,7 @@ public abstract class LevelScreen implements Screen {
     // Margin from top left corner
     private final int heartMarginX = 10;
     private final int heartMarginY = 10;
+    private Texture bossBarTexture;
 
     public LevelScreen(TankGame game, Tank playerTank) {
         this.game = game;
@@ -38,6 +42,11 @@ public abstract class LevelScreen implements Screen {
         pendingEnemies = new ArrayList<>();
         // Load the heart texture for the health display
         heartTexture = new Texture(Gdx.files.internal("heart.jpg"));
+        Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+        pixmap.setColor(Color.WHITE);
+        pixmap.fill();
+        bossBarTexture = new Texture(pixmap);
+        pixmap.dispose();
         setupLevel();  // Each level will override this
     }
 
@@ -64,6 +73,29 @@ public abstract class LevelScreen implements Screen {
 
         game.batch.begin();
         renderGameElements();
+        for (EnemyTank enemy : enemies) {
+            if (enemy instanceof BossTank) {
+                BossTank boss = (BossTank) enemy;
+                // Calculate health percentage.
+                float healthPercentage = boss.getBossHealth() / (float) boss.getMaxBossHealth();
+                // Set boss bar dimensions.
+                float barWidth = Gdx.graphics.getWidth() * 0.6f; // 60% of screen width.
+                float barHeight = 30f;
+                // Center horizontally and position a bit below the center vertically.
+                float barX = (Gdx.graphics.getWidth() - barWidth) / 2;
+                float barY = (Gdx.graphics.getHeight() / 2f) - 100f;
+
+                // Draw the background bar (red)
+                game.batch.setColor(Color.RED);
+                game.batch.draw(bossBarTexture, barX, barY, barWidth, barHeight);
+                // Draw the current health (green)
+                game.batch.setColor(Color.GREEN);
+                game.batch.draw(bossBarTexture, barX, barY, barWidth * healthPercentage, barHeight);
+                // Reset color to white.
+                game.batch.setColor(Color.WHITE);
+                break; // Draw only one boss health bar.
+            }
+        }
         // Draw health hearts at the top-left corner
         int currentHealth = playerTank.getCurrentHealth(); // Ensure Tank has this getter
         for (int i = 0; i < currentHealth; i++) {
@@ -129,6 +161,7 @@ public abstract class LevelScreen implements Screen {
         for (Explosion explosion : explosions) {
             explosion.render(game.batch);
         }
+
     }
     public void spawnChaserTank(){
         pendingEnemies.add(new ChaserTank(600,600, playerTank, bullets));
@@ -155,6 +188,7 @@ public abstract class LevelScreen implements Screen {
     @Override
     public void dispose() {
         heartTexture.dispose();
+        bossBarTexture.dispose();
         // Dispose other resources if necessary
     }
 }
