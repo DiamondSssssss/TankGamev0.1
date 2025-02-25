@@ -13,8 +13,8 @@ public class Level2Screen extends LevelScreen {
 
     @Override
     protected void setupLevel() {
-        enemies.add(new EnemyTank(300, 300, playerTank));
-        enemies.add(new EnemyTank(500, 500, playerTank)); // Two enemies
+        enemies.add(new EnemyTank(300, 300, playerTank,bullets));
+        enemies.add(new EnemyTank(500, 500, playerTank,bullets)); // Two enemies
     }
 
     @Override

@@ -83,12 +83,17 @@ public abstract class LevelScreen implements Screen {
     }
 
     private void updateGameElements(float delta) {
-        playerTank.update(delta, bullets, enemies);
-        bullets.removeIf(bullet -> {
+        // 1. Update all enemy bullets before checking collisions.
+        for (Bullet bullet : bullets) {
             bullet.update(delta);
-            return bullet.isOffScreen();
-        });
+        }
+        // Remove any bullets that have gone off screen.
+        bullets.removeIf(bullet -> bullet.isOffScreen());
 
+        // 2. Now update the player's tank (which checks collisions using current bullet positions)
+        playerTank.update(delta, bullets, enemies);
+
+        // 3. Update enemies and handle their collisions.
         for (Iterator<EnemyTank> enemyIterator = enemies.iterator(); enemyIterator.hasNext();) {
             EnemyTank enemy = enemyIterator.next();
             enemy.update(delta);
@@ -98,16 +103,20 @@ public abstract class LevelScreen implements Screen {
                 enemyIterator.remove();
             }
         }
-// After processing current enemies, add any pending enemies.
+
+        // 4. Process pending enemies (if you're using them)
         if (!pendingEnemies.isEmpty()) {
             enemies.addAll(pendingEnemies);
             pendingEnemies.clear();
         }
+
+        // 5. Update explosions and remove finished ones.
         explosions.removeIf(explosion -> {
             explosion.update(delta);
             return explosion.isFinished();
         });
     }
+
 
     private void renderGameElements() {
         playerTank.draw(game.batch);
@@ -122,7 +131,7 @@ public abstract class LevelScreen implements Screen {
         }
     }
     public void spawnChaserTank(){
-        pendingEnemies.add(new ChaserTank(600,600, playerTank));
+        pendingEnemies.add(new ChaserTank(600,600, playerTank, bullets));
     }
     protected abstract void goToUpgradeScreen();
 

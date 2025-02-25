@@ -16,7 +16,6 @@ import java.util.List;
 public class BossTank extends EnemyTank {
     private int bossHealth = 100;
     private TankGame game; // Reference to the game instance
-
     // Timers for special moves
     private float shootTimer = 3f;   // Every 3 seconds, shoots in 6 directions.
     private float spawnTimer = 5f;   // Every 5 seconds, spawn 3 ChaserTanks.
@@ -29,8 +28,8 @@ public class BossTank extends EnemyTank {
     private boolean spawnWarning = false;
     private boolean dashWarning = false;
 
-    public BossTank(float x, float y, Tank player, TankGame game) {
-        super(x, y, player);
+    public BossTank(float x, float y, Tank player, TankGame game, List<Bullet> bullets) {
+        super(x, y, player, bullets);
         this.game=game;
         // Override the boss's texture and adjust its speed as needed.
         this.texture = new Texture(Gdx.files.internal("boss_tank.jpg"));
@@ -49,7 +48,7 @@ public class BossTank extends EnemyTank {
             shootWarning = true;
         }
         if (shootTimer <= 0) {
-            shootSixDirections();
+            shoot();
             shootTimer = 3f; // Reset timer for shooting move.
             shootWarning = false;
         }
@@ -61,7 +60,7 @@ public class BossTank extends EnemyTank {
             spawnWarning = true;
         }
         if (spawnTimer <= 0) {
-            spawnChaserTanks();
+            //spawnChaserTanks();
             spawnTimer = 5f; // Reset timer for spawn move.
             spawnWarning = false;
         }
@@ -79,20 +78,7 @@ public class BossTank extends EnemyTank {
         }
     }
 
-    // Shoots bullets in 6 directions evenly spaced (60° apart)
-    private void shootSixDirections() {
-        float angleStep = 360f / 6f;
-        for (int i = 0; i < 6; i++) {
-            float angle = i * angleStep;
-            float rad = angle * MathUtils.degreesToRadians;
-            float bulletX = position.x + sprite.getWidth() / 2;
-            float bulletY = position.y + sprite.getHeight() / 2;
-            // Create a bullet. Assuming 'true' marks it as an enemy bullet.
-            Bullet bullet = new Bullet(bulletX, bulletY, angle, true);
-            // You need to add the bullet to your game's bullet list.
-            System.out.println("Boss shoots bullet at angle: " + angle);
-        }
-    }
+
 
     // Boss dashes toward the player.
     private void dashAtPlayer() {
@@ -122,10 +108,8 @@ public class BossTank extends EnemyTank {
         }
     }
     private void spawnChaserTanks() {
-        System.out.println("Boss spawns 3 Chaser Tanks!");
         // Get the current screen from the game and cast it to LevelScreen
-        if (game.getScreen() instanceof LevelScreen) {
-            LevelScreen currentLevelScreen = (LevelScreen) game.getScreen();
+        if (game.getScreen() instanceof LevelScreen currentLevelScreen) {
             currentLevelScreen.spawnChaserTank();
         } else {
             System.out.println("Error: Current screen is not a LevelScreen!");

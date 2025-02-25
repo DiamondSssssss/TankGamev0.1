@@ -24,7 +24,7 @@ public class GameScreen implements Screen {
         bullets = new ArrayList<>();
         explosions = new ArrayList<>();
         enemies = new ArrayList<>(); // ✅ Initialize enemies list
-        enemies.add(new EliteEnemyTank(400, 400, playerTank)); // ✅ Add an enemy to the list
+        enemies.add(new EliteEnemyTank(400, 400, playerTank,bullets)); // ✅ Add an enemy to the list
     }
 
     @Override

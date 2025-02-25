@@ -9,6 +9,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.mygdx.tankgame.enemies.EnemyTank;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class Tank {
@@ -84,26 +85,38 @@ public class Tank {
             mouseX - (position.x + sprite.getWidth() / 2)));
 
         sprite.setRotation(rotation);
-
-        for (EnemyTank enemyTank : enemyTanks) {
-            checkBulletCollision(enemyTank.getBullets());
-            if (enemyTank.getBoundingRectangle().overlaps(getBoundingRectangle())) {
-                takeDamage(1);
-            }
-        }
+        checkBulletCollision(bullets,explosions);
+        checkTankCollisions(enemyTanks);
     }
 
-    public void checkBulletCollision(List<Bullet> enemyBullets) {
-        for (Bullet bullet : enemyBullets) {
-            if (bullet.getBoundingRectangle().overlaps(getBoundingRectangle())) {
+    public void checkBulletCollision(List<Bullet> enemyBullets, List<Explosion> explosions) {
+        Iterator<Bullet> iterator = enemyBullets.iterator();
+        while (iterator.hasNext()) {
+            Bullet bullet = iterator.next();
+            Rectangle bulletRect = bullet.getBoundingRectangle();
+            Rectangle playerRect = getBoundingRectangle();
+            if (bullet.isEnemyBullet() && bulletRect.overlaps(playerRect)) {
                 takeDamage(1);
-                enemyBullets.remove(bullet);
+                iterator.remove(); // Safely remove the bullet during iteration
                 break;
             }
         }
     }
 
-    private void takeDamage(int amount) {
+
+    public void checkTankCollisions(List<EnemyTank> enemyTanks) {
+        // Check for collisions with any enemy tanks
+        for (EnemyTank enemy : enemyTanks) {
+            if (enemy.getBoundingRectangle().overlaps(getBoundingRectangle())) {
+                System.out.println("Tank collided with enemy!");
+                takeDamage(1);
+                break; // Optionally break after one collision is detected
+            }
+        }
+    }
+
+
+    public void takeDamage(int amount) {
         currentHealth -= amount;
         if (currentHealth <= 0) {
             triggerExplosion();

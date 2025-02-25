@@ -24,7 +24,7 @@ public class EnemyTank {
     private float fireCooldown = 2f;
     private float timeSinceLastShot = 0f;
     protected Tank player;
-    private List<Bullet> bullets;
+    public List<Bullet> bullets;
     private boolean isDestroyed = false;
     boolean isExploding = false;
     private float explosionTimer = 1.5f; // 1.5 seconds explosion animation
@@ -47,7 +47,7 @@ public class EnemyTank {
     private static final float MOVE_DURATION = 2f;  // Move for 2 seconds
     private static final float ROTATE_DURATION = 1f; // Rotate for 1 second
 
-    public EnemyTank(float x, float y, Tank player) {
+    public EnemyTank(float x, float y, Tank player, List<Bullet> bullets) {
         this.texture = new Texture(Gdx.files.internal("enemy_tank.png"));
         this.sprite = new Sprite(texture);
         sprite.setSize(64, 64);
@@ -55,7 +55,7 @@ public class EnemyTank {
         this.position = new Vector2(x, y);
         this.targetPosition = new Vector2(x, y);
         this.player = player;
-        this.bullets = new ArrayList<>();
+        this.bullets = bullets;
         sprite.setPosition(x, y);
         sprite.setRotation(-180);
         this.currentState = State.MOVING;
@@ -143,7 +143,7 @@ public class EnemyTank {
         }
     }
 
-    private void shoot() {
+    protected void shoot() {
         float angleRadians = sprite.getRotation() * MathUtils.degreesToRadians;
         float bulletX = position.x + MathUtils.cos(angleRadians) * 20;
         float bulletY = position.y + MathUtils.sin(angleRadians) * 20;
@@ -165,7 +165,7 @@ public class EnemyTank {
         Iterator<Bullet> iterator = playerBullets.iterator();
         while (iterator.hasNext()) {
             Bullet bullet = iterator.next();
-            if (bullet.getBoundingRectangle().overlaps(sprite.getBoundingRectangle())) {
+            if ( !bullet.isEnemyBullet() && bullet.getBoundingRectangle().overlaps(sprite.getBoundingRectangle())) {
                 explosions.add(new Explosion(position.x, position.y));
                 isExploding = true;
                 isDestroyed=true;

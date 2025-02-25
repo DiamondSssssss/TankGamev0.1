@@ -11,8 +11,8 @@ import java.util.List;
 public class EliteEnemyTank extends EnemyTank {
     private int hitPoints = 3; // Takes 3 bullets before being destroyed
 
-    public EliteEnemyTank(float x, float y, Tank player) {
-        super(x, y, player);
+    public EliteEnemyTank(float x, float y, Tank player,List<Bullet> bullets) {
+        super(x, y, player, bullets);
     }
     @Override
     public void update(float delta) {

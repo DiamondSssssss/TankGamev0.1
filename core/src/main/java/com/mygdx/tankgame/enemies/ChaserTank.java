@@ -3,6 +3,7 @@ package com.mygdx.tankgame.enemies;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
+import com.mygdx.tankgame.Bullet;
 import com.mygdx.tankgame.Explosion;
 import com.mygdx.tankgame.Tank;
 
@@ -11,8 +12,8 @@ import java.util.List;
 public class ChaserTank extends EnemyTank {
     private boolean isExploding = false;
 
-    public ChaserTank(float x, float y, Tank player) {
-        super(x, y, player); // Keep all logic from EnemyTank
+    public ChaserTank(float x, float y, Tank player, List<Bullet> bullets) {
+        super(x, y, player,bullets); // Keep all logic from EnemyTank
         this.texture = new Texture(Gdx.files.internal("enemy_tank.png")); // Unique texture for ChaserTank
         this.speed = 120f; // Custom speed for chasing
     }
@@ -27,6 +28,7 @@ public class ChaserTank extends EnemyTank {
             return; // Stop updating movement/shooting while exploding
         }
         chasePlayer(delta);
+        checkPlayerCollision();
         super.update(delta);
     }
     public boolean isExploding() {
@@ -39,4 +41,16 @@ public class ChaserTank extends EnemyTank {
         sprite.setPosition(position.x, position.y);
         sprite.setRotation(direction.angleDeg());
     }
+    public void checkPlayerCollision() {
+        if (getBoundingRectangle().overlaps(player.getBoundingRectangle())) {
+            System.out.println("ChaserTank hit the player! Exploding...");
+            player.takeDamage(1);
+            setDestroyed(true);
+        }
+    }
+    @Override
+    public void shoot() {
+        // Do nothing: ChaserTank doesn't shoot.
+    }
+
 }
