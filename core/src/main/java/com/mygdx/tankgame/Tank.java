@@ -22,7 +22,8 @@ public class Tank {
     private float dashCooldown = 1.0f; // Cooldown between dashes
     private float dashTimeRemaining = 0f; // Time left in dash
     private float dashCooldownRemaining = 0f; // Cooldown tracker
-    private int dashCharges = 3; // Default dash charges
+    private int maxDashCharges;
+    private int dashCharges; // Current dash charges
     private int maxHealth = 3;
     private int currentHealth = maxHealth;
     private boolean isDestroyed = false;
@@ -37,6 +38,9 @@ public class Tank {
         sprite.setPosition(position.x, position.y);
         sprite.setOriginCenter();
         explosions = new ArrayList<>();
+
+        maxDashCharges = 3;
+        dashCharges = maxDashCharges;
     }
 
     public void update(float deltaTime, List<Bullet> bullets, List<EnemyTank> enemyTanks) {
@@ -123,8 +127,10 @@ public class Tank {
         }
     }
 
+
     public void applyUpgrade(int dashIncrease, int healthIncrease, float speedIncrease) {
-        dashCharges += dashIncrease;
+        maxDashCharges += dashIncrease;
+        dashCharges = maxDashCharges;
         maxHealth += healthIncrease;
         currentHealth = Math.min(currentHealth + healthIncrease, maxHealth);
         speed += speedIncrease; // Increase speed

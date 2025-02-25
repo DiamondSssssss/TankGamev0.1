@@ -1,6 +1,7 @@
 package com.mygdx.tankgame.levels;
 
 import com.mygdx.tankgame.Tank;
+import com.mygdx.tankgame.enemies.BossTank;
 import com.mygdx.tankgame.enemies.ChaserTank;
 import com.mygdx.tankgame.enemies.EliteEnemyTank;
 import com.mygdx.tankgame.enemies.EnemyTank;
@@ -15,9 +16,9 @@ public class Level3Screen extends LevelScreen {
 
     @Override
     protected void setupLevel() {
-        enemies.add(new ChaserTank(500, 500, playerTank));
-        enemies.add(new ChaserTank(500, 200, playerTank));
+        enemies.add(new BossTank(500, 500, playerTank,game));
     }
+
 
     @Override
     protected void goToUpgradeScreen() {

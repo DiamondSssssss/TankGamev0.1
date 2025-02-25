@@ -6,9 +6,11 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.mygdx.tankgame.enemies.ChaserTank;
 import com.mygdx.tankgame.enemies.EnemyTank;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public abstract class LevelScreen implements Screen {
@@ -17,7 +19,7 @@ public abstract class LevelScreen implements Screen {
     protected final List<Bullet> bullets;
     protected final List<EnemyTank> enemies;
     protected final List<Explosion> explosions;
-
+    protected final List<EnemyTank> pendingEnemies;
     // Heart texture for displaying health
     private Texture heartTexture;
     // Heart dimensions
@@ -33,6 +35,7 @@ public abstract class LevelScreen implements Screen {
         bullets = new ArrayList<>();
         explosions = new ArrayList<>();
         enemies = new ArrayList<>();
+        pendingEnemies = new ArrayList<>();
         // Load the heart texture for the health display
         heartTexture = new Texture(Gdx.files.internal("heart.jpg"));
         setupLevel();  // Each level will override this
@@ -86,12 +89,20 @@ public abstract class LevelScreen implements Screen {
             return bullet.isOffScreen();
         });
 
-        enemies.removeIf(enemy -> {
+        for (Iterator<EnemyTank> enemyIterator = enemies.iterator(); enemyIterator.hasNext();) {
+            EnemyTank enemy = enemyIterator.next();
             enemy.update(delta);
             enemy.handleBulletCollision(bullets, explosions);
-            return enemy.isDestroyed();
-        });
-
+            if (enemy.isDestroyed()) {
+                enemy.dispose();
+                enemyIterator.remove();
+            }
+        }
+// After processing current enemies, add any pending enemies.
+        if (!pendingEnemies.isEmpty()) {
+            enemies.addAll(pendingEnemies);
+            pendingEnemies.clear();
+        }
         explosions.removeIf(explosion -> {
             explosion.update(delta);
             return explosion.isFinished();
@@ -110,7 +121,9 @@ public abstract class LevelScreen implements Screen {
             explosion.render(game.batch);
         }
     }
-
+    public void spawnChaserTank(){
+        pendingEnemies.add(new ChaserTank(600,600, playerTank));
+    }
     protected abstract void goToUpgradeScreen();
 
     @Override

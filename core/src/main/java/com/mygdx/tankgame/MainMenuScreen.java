@@ -42,7 +42,7 @@ public class MainMenuScreen implements Screen {
         batch.end();
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
-            game.setScreen(new Level1Screen(game,new Tank(100,100))); // Fix: Pass game to GameScreen
+            game.setScreen(new Level3Screen(game,new Tank(100,100))); // Fix: Pass game to GameScreen
         }
     }
 
