@@ -1,4 +1,4 @@
-package com.mygdx.tankgame;
+package com.mygdx.tankgame.playertank;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -6,6 +6,8 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.mygdx.tankgame.bullets.Bullet;
+import com.mygdx.tankgame.Explosion;
 import com.mygdx.tankgame.enemies.EnemyTank;
 
 import java.util.ArrayList;
@@ -31,6 +33,14 @@ public class Tank {
 
     private List<Explosion> explosions;
 
+    // --- New fields for invincibility and blinking ---
+    private boolean isInvincible = false;
+    private float invincibilityTime = 3f;     // Total invincibility duration in seconds
+    private float invincibilityTimer = 0f;      // Countdown timer
+    private float blinkTimer = 0f;              // Timer to control blink toggling
+    private float blinkInterval = 0.2f;         // How frequently to toggle visibility
+    private boolean drawSprite = true;          // Whether the sprite should be drawn this frame
+
     public Tank(float x, float y) {
         tankTexture = new Texture("tank.png");
         sprite = new Sprite(tankTexture);
@@ -46,6 +56,20 @@ public class Tank {
 
     public void update(float deltaTime, List<Bullet> bullets, List<EnemyTank> enemyTanks) {
         if (isDestroyed) return;
+
+        // --- Update invincibility and blink timers if invincible ---
+        if (isInvincible) {
+            invincibilityTimer -= deltaTime;
+            blinkTimer += deltaTime;
+            if (blinkTimer >= blinkInterval) {
+                blinkTimer = 0;
+                drawSprite = !drawSprite;
+            }
+            if (invincibilityTimer <= 0) {
+                isInvincible = false;
+                drawSprite = true; // Ensure sprite is visible when invincibility ends
+            }
+        }
 
         // Handle dash cooldown
         if (dashCooldownRemaining > 0) dashCooldownRemaining -= deltaTime;
@@ -75,17 +99,20 @@ public class Tank {
             }
         }
 
+        // Keep tank within screen boundaries.
         position.x = Math.max(0, Math.min(Gdx.graphics.getWidth() - sprite.getWidth(), position.x));
         position.y = Math.max(0, Math.min(Gdx.graphics.getHeight() - sprite.getHeight(), position.y));
         sprite.setPosition(position.x, position.y);
 
         float mouseX = Gdx.input.getX();
         float mouseY = Gdx.graphics.getHeight() - Gdx.input.getY();
-        rotation = (float) Math.toDegrees(Math.atan2(mouseY - (position.y + sprite.getHeight() / 2),
-            mouseX - (position.x + sprite.getWidth() / 2)));
-
+        rotation = (float) Math.toDegrees(Math.atan2(
+            mouseY - (position.y + sprite.getHeight() / 2),
+            mouseX - (position.x + sprite.getWidth() / 2)
+        ));
         sprite.setRotation(rotation);
-        checkBulletCollision(bullets,explosions);
+
+        checkBulletCollision(bullets, explosions);
         checkTankCollisions(enemyTanks);
     }
 
@@ -103,7 +130,6 @@ public class Tank {
         }
     }
 
-
     public void checkTankCollisions(List<EnemyTank> enemyTanks) {
         // Check for collisions with any enemy tanks
         for (EnemyTank enemy : enemyTanks) {
@@ -115,11 +141,19 @@ public class Tank {
         }
     }
 
-
     public void takeDamage(int amount) {
+        // If already invincible, ignore further damage.
+        if (isInvincible) return;
+
         currentHealth -= amount;
         if (currentHealth <= 0) {
             triggerExplosion();
+        } else {
+            // Start invincibility and blinking effect after a collision.
+            isInvincible = true;
+            invincibilityTimer = invincibilityTime;
+            blinkTimer = 0;
+            drawSprite = true;
         }
     }
 
@@ -139,7 +173,6 @@ public class Tank {
             System.out.println("Dashing! Charges left: " + dashCharges);
         }
     }
-
 
     public void applyUpgrade(int dashIncrease, int healthIncrease, float speedIncrease) {
         maxDashCharges += dashIncrease;
@@ -170,17 +203,24 @@ public class Tank {
         Bullet bullet = new Bullet(bulletX, bulletY, rotation, false);
         bullets.add(bullet);
     }
+
     public void draw(com.badlogic.gdx.graphics.g2d.SpriteBatch batch) {
+        // Only draw the tank if it's not destroyed.
         if (!isDestroyed) {
-            sprite.draw(batch);
+            // If invincible, draw based on the blink toggle.
+            if (!isInvincible || (isInvincible && drawSprite)) {
+                sprite.draw(batch);
+            }
         }
         for (Explosion explosion : explosions) {
             explosion.draw(batch);
         }
     }
+
     public Vector2 getPosition() {
         return position;
     }
+
     public boolean isDestroyed() {
         return isDestroyed;
     }
@@ -194,6 +234,17 @@ public class Tank {
     }
 
     public int getCurrentHealth() {
-        return  currentHealth;
+        return currentHealth;
+    }
+    public float getRotation() {
+        return rotation;
+    }
+
+    public Sprite getSprite() {
+        return sprite;
+    }
+
+    public void setSpeed(float newSpeed) {
+        speed = newSpeed;
     }
 }

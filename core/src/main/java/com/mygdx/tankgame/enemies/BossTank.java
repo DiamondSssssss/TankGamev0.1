@@ -5,10 +5,10 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
-import com.mygdx.tankgame.Bullet;
+import com.mygdx.tankgame.bullets.Bullet;
 import com.mygdx.tankgame.Explosion;
 import com.mygdx.tankgame.LevelScreen;
-import com.mygdx.tankgame.Tank;
+import com.mygdx.tankgame.playertank.Tank;
 import com.mygdx.tankgame.TankGame;
 
 import java.util.List;
@@ -152,7 +152,7 @@ public class BossTank extends EnemyTank {
         for (int i = 0; i < playerBullets.size(); i++) {
             Bullet bullet = playerBullets.get(i);
             if (!bullet.isEnemyBullet() && bullet.getBoundingRectangle().overlaps(getBoundingRectangle())) {
-                bossHealth--;
+                bossHealth-= bullet.getDamage();
                 playerBullets.remove(i);
                 i--;
                 if (bossHealth <= 0) {

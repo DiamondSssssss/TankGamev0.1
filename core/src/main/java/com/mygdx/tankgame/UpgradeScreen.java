@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.mygdx.tankgame.levels.Level1Screen;
 import com.mygdx.tankgame.levels.Level2Screen;
 import com.mygdx.tankgame.levels.Level3Screen;
+import com.mygdx.tankgame.playertank.Tank;
 
 public class UpgradeScreen implements Screen {
     private TankGame game;

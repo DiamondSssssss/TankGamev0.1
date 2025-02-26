@@ -2,9 +2,9 @@ package com.mygdx.tankgame.enemies;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
-import com.mygdx.tankgame.Bullet;
+import com.mygdx.tankgame.bullets.Bullet;
 import com.mygdx.tankgame.Explosion;
-import com.mygdx.tankgame.Tank;
+import com.mygdx.tankgame.playertank.Tank;
 
 import java.util.List;
 

@@ -4,8 +4,10 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL20;
+import com.mygdx.tankgame.bullets.Bullet;
 import com.mygdx.tankgame.enemies.EliteEnemyTank;
 import com.mygdx.tankgame.enemies.EnemyTank;
+import com.mygdx.tankgame.playertank.Tank;
 
 import java.util.ArrayList;
 import java.util.List;
