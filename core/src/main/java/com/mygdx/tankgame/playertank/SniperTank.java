@@ -25,8 +25,8 @@ public class SniperTank extends Tank {
     private float normalSpeed;
 
     // --- Wall Ability Cooldown Fields ---
-    private float wallCooldownTimer = 0f;
-    private final float wallCooldownDuration = 10f;
+    protected float wallCooldownTimer = 0f;
+    protected final float wallCooldownDuration = 10f;
 
     // --- Shooting Cooldown Fields ---
     private float shootCooldownTimer = 0f;
@@ -125,7 +125,7 @@ public class SniperTank extends Tank {
         bullets.add(bullet);
     }
 
-    private void createWall() {
+    protected void createWall() {
         float offsetDistance = 60f; // Place the wall further in front of the tank.
         float radians = (float) Math.toRadians(getRotation());
         Vector2 center = getPosition().cpy();

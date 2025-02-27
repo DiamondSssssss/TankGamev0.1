@@ -12,15 +12,15 @@ import java.util.List;
 
 public class ShotgunTank extends Tank {
     // --- Shield fields ---
-    private boolean shieldActive = false;
-    private float shieldTimer = 0f;
+    protected boolean shieldActive = false;
+    protected float shieldTimer = 0f;
     private final float shieldDuration = 3f;
     private Texture shieldTexture;
     private Sprite shieldSprite;
 
     // --- Shield cooldown fields ---
-    private float shieldCooldownTimer = 0f;
-    private final float shieldCooldownDuration = 10f;
+    protected float shieldCooldownTimer = 0f;
+    protected final float shieldCooldownDuration = 10f;
 
     // --- Knockback configuration ---
     private final float knockbackForce = 50f;
@@ -75,7 +75,7 @@ public class ShotgunTank extends Tank {
         super.takeDamage(amount);
     }
 
-    private void activateShield() {
+    protected void activateShield() {
         shieldActive = true;
         shieldTimer = shieldDuration;
     }

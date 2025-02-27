@@ -65,7 +65,7 @@ public abstract class LevelScreen implements Screen {
     }
 
     // Update walls: remove expired ones.
-    private void updateWalls(float delta) {
+    protected void updateWalls(float delta) {
         Iterator<Wall> iter = walls.iterator();
         while (iter.hasNext()) {
             Wall wall = iter.next();
@@ -78,7 +78,7 @@ public abstract class LevelScreen implements Screen {
     }
 
     // Check for bullet-wall collisions.
-    private void checkBulletWallCollisions() {
+    protected void checkBulletWallCollisions() {
         Iterator<Bullet> bulletIterator = bullets.iterator();
         while (bulletIterator.hasNext()) {
             Bullet bullet = bulletIterator.next();
@@ -213,7 +213,7 @@ public abstract class LevelScreen implements Screen {
         updateWalls(delta);
     }
 
-    private void renderGameElements() {
+    protected void renderGameElements() {
         playerTank.draw(game.batch);
         for (Bullet bullet : bullets) {
             bullet.draw(game.batch);

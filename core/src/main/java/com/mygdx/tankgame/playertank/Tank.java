@@ -247,4 +247,17 @@ public class Tank {
     public void setSpeed(float newSpeed) {
         speed = newSpeed;
     }
+    public float getSpeed() {
+        return speed;
+    }
+
+    public void setRotation(float newRotation) {
+        this.rotation = newRotation;
+        sprite.setRotation(newRotation);
+    }
+    protected List<Explosion> getExplosions() {
+        return explosions;
+    }
+
+
 }
