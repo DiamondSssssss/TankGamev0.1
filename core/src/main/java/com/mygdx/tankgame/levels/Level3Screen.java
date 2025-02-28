@@ -1,13 +1,13 @@
 package com.mygdx.tankgame.levels;
 
-import com.mygdx.tankgame.playertank.Tank;
+import com.mygdx.tankgame.playertank.PlayerTank;
 import com.mygdx.tankgame.enemies.BossTank;
 import com.mygdx.tankgame.LevelScreen;
 import com.mygdx.tankgame.TankGame;
 import com.mygdx.tankgame.VictoryScreen;
 
 public class Level3Screen extends LevelScreen {
-    public Level3Screen(TankGame game, Tank playerTank) {
+    public Level3Screen(TankGame game, PlayerTank playerTank) {
         super(game, playerTank);
     }
 

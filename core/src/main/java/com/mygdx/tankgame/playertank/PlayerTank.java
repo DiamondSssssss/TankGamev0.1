@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class Tank {
+public class PlayerTank{
     private Texture tankTexture;
     private Sprite sprite;
     private Vector2 position;
@@ -41,7 +41,7 @@ public class Tank {
     private float blinkInterval = 0.2f;         // How frequently to toggle visibility
     private boolean drawSprite = true;          // Whether the sprite should be drawn this frame
 
-    public Tank(float x, float y) {
+    public PlayerTank(float x, float y) {
         tankTexture = new Texture("tank.png");
         sprite = new Sprite(tankTexture);
         sprite.setSize(64, 64);
@@ -247,6 +247,7 @@ public class Tank {
     public void setSpeed(float newSpeed) {
         speed = newSpeed;
     }
+
     public float getSpeed() {
         return speed;
     }

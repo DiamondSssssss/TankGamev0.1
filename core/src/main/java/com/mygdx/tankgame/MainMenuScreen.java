@@ -7,13 +7,17 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.mygdx.tankgame.coop.PlayerOneTank;
-import com.mygdx.tankgame.coop.PlayerTwoTank;
-import com.mygdx.tankgame.levels.Level3Screen;
+import com.mygdx.tankgame.coop.PlayerOnePlayerTank;
+import com.mygdx.tankgame.coop.PlayerTwoPlayerTank;
+import com.mygdx.tankgame.coop.CoopSniperPlayerTankOne;
+import com.mygdx.tankgame.coop.CoopSniperPlayerTankTwo;
+import com.mygdx.tankgame.coop.CoopShotgunPlayerTankOne;
+import com.mygdx.tankgame.coop.CoopShotgunPlayerTankTwo;
 import com.mygdx.tankgame.levels.CoopLevelScreen;
-import com.mygdx.tankgame.playertank.ShotgunTank;
-import com.mygdx.tankgame.playertank.SniperTank;
-import com.mygdx.tankgame.playertank.Tank;
+import com.mygdx.tankgame.levels.Level3Screen;
+import com.mygdx.tankgame.playertank.PlayerTank;
+import com.mygdx.tankgame.playertank.SniperPlayerTank;
+import com.mygdx.tankgame.playertank.ShotgunPlayerTank;
 
 public class MainMenuScreen implements Screen {
     private TankGame game;
@@ -53,41 +57,35 @@ public class MainMenuScreen implements Screen {
 
         // --- Mode Selection State ---
         if (menuState == MenuState.MODE_SELECTION) {
-            // Use LEFT/RIGHT keys to change mode.
-            if (Gdx.input.isKeyJustPressed(Input.Keys.LEFT)) {
-                // Toggle mode (if currently CLASSIC, switch to COOP; if COOP, switch to CLASSIC)
+            // Toggle mode with LEFT/RIGHT.
+            if (Gdx.input.isKeyJustPressed(Input.Keys.LEFT) || Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)) {
                 selectedMode = (selectedMode == GameMode.CLASSIC) ? GameMode.COOP : GameMode.CLASSIC;
             }
-            if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)) {
-                selectedMode = (selectedMode == GameMode.CLASSIC) ? GameMode.COOP : GameMode.CLASSIC;
-            }
-            // Press ENTER to move to tank selection.
+            // Press ENTER to proceed.
             if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
                 menuState = MenuState.TANK_SELECTION;
             }
 
             batch.begin();
             batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-            font.draw(batch, "Select Mode:", Gdx.graphics.getWidth()/2 - 50, Gdx.graphics.getHeight()/2 + 50);
+            font.draw(batch, "Select Mode:", Gdx.graphics.getWidth() / 2 - 50, Gdx.graphics.getHeight() / 2 + 50);
             String modeText = (selectedMode == GameMode.CLASSIC) ? "Classic Mode" : "Coop Mode";
-            font.draw(batch, modeText, Gdx.graphics.getWidth()/2 - 50, Gdx.graphics.getHeight()/2);
-            font.draw(batch, "Use LEFT/RIGHT arrows to toggle mode.", Gdx.graphics.getWidth()/2 - 150, Gdx.graphics.getHeight()/2 - 30);
-            font.draw(batch, "Press ENTER to continue.", Gdx.graphics.getWidth()/2 - 80, Gdx.graphics.getHeight()/2 - 60);
+            font.draw(batch, modeText, Gdx.graphics.getWidth() / 2 - 50, Gdx.graphics.getHeight() / 2);
+            font.draw(batch, "Use LEFT/RIGHT arrows to toggle mode.", Gdx.graphics.getWidth() / 2 - 150, Gdx.graphics.getHeight() / 2 - 30);
+            font.draw(batch, "Press ENTER to continue.", Gdx.graphics.getWidth() / 2 - 80, Gdx.graphics.getHeight() / 2 - 60);
             batch.end();
             return;
         }
 
         // --- Tank Selection State ---
-        // In Classic mode: one tank selection; in Coop mode: two separate selections.
         batch.begin();
         batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         if (selectedMode == GameMode.CLASSIC) {
-            font.draw(batch, "Classic Mode - Select Your Tank", Gdx.graphics.getWidth()/2 - 100, Gdx.graphics.getHeight()/2 + 50);
-            font.draw(batch, "Tank Options: " + tankOptions[selectedTankIndexClassic], Gdx.graphics.getWidth()/2 - 100, Gdx.graphics.getHeight()/2);
-            font.draw(batch, "Use LEFT/RIGHT to change selection.", Gdx.graphics.getWidth()/2 - 130, Gdx.graphics.getHeight()/2 - 30);
-            font.draw(batch, "Press ENTER to start.", Gdx.graphics.getWidth()/2 - 80, Gdx.graphics.getHeight()/2 - 60);
+            font.draw(batch, "Classic Mode - Select Your Tank", Gdx.graphics.getWidth() / 2 - 100, Gdx.graphics.getHeight() / 2 + 50);
+            font.draw(batch, "Tank Options: " + tankOptions[selectedTankIndexClassic], Gdx.graphics.getWidth() / 2 - 100, Gdx.graphics.getHeight() / 2);
+            font.draw(batch, "Use LEFT/RIGHT to change selection.", Gdx.graphics.getWidth() / 2 - 130, Gdx.graphics.getHeight() / 2 - 30);
+            font.draw(batch, "Press ENTER to start.", Gdx.graphics.getWidth() / 2 - 80, Gdx.graphics.getHeight() / 2 - 60);
 
-            // Process input for Classic mode selection.
             if (Gdx.input.isKeyJustPressed(Input.Keys.LEFT)) {
                 selectedTankIndexClassic = (selectedTankIndexClassic - 1 + tankOptions.length) % tankOptions.length;
             }
@@ -95,80 +93,89 @@ public class MainMenuScreen implements Screen {
                 selectedTankIndexClassic = (selectedTankIndexClassic + 1) % tankOptions.length;
             }
             if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
-                Tank chosenTank;
+                PlayerTank chosenPlayerTank;
                 if (selectedTankIndexClassic == 0) {
-                    chosenTank = new Tank(100, 100);
+                    chosenPlayerTank = new PlayerTank(100, 100);
                 } else if (selectedTankIndexClassic == 1) {
-                    chosenTank = new SniperTank(100, 100);
+                    chosenPlayerTank = new SniperPlayerTank(100, 100);
                 } else if (selectedTankIndexClassic == 2) {
-                    chosenTank = new ShotgunTank(100, 100);
+                    chosenPlayerTank = new ShotgunPlayerTank(100, 100);
                 } else {
-                    chosenTank = new Tank(100, 100);
+                    chosenPlayerTank = new PlayerTank(100, 100);
                 }
-                game.setScreen(new Level3Screen(game, chosenTank));
+                game.setScreen(new Level3Screen(game, chosenPlayerTank));
             }
         } else if (selectedMode == GameMode.COOP) {
-            font.draw(batch, "Coop Mode - Select Tanks for Each Player", Gdx.graphics.getWidth()/2 - 150, Gdx.graphics.getHeight()/2 + 70);
-            // Display Player One selection.
-            font.draw(batch, "Player 1: " + tankOptions[selectedTankIndexP1], Gdx.graphics.getWidth()/2 - 200, Gdx.graphics.getHeight()/2 + 20);
-            // Display Player Two selection.
-            font.draw(batch, "Player 2: " + tankOptions[selectedTankIndexP2], Gdx.graphics.getWidth()/2 + 50, Gdx.graphics.getHeight()/2 + 20);
-            font.draw(batch, "P1 use A/D; P2 use LEFT/RIGHT to change selection.", Gdx.graphics.getWidth()/2 - 180, Gdx.graphics.getHeight()/2 - 20);
-            font.draw(batch, "Press ENTER to start Coop mode.", Gdx.graphics.getWidth()/2 - 100, Gdx.graphics.getHeight()/2 - 60);
+            font.draw(batch, "Coop Mode - Select Tanks for Each Player", Gdx.graphics.getWidth() / 2 - 150, Gdx.graphics.getHeight() / 2 + 70);
+            font.draw(batch, "Player 1: " + tankOptions[selectedTankIndexP1], Gdx.graphics.getWidth() / 2 - 200, Gdx.graphics.getHeight() / 2 + 20);
+            font.draw(batch, "Player 2: " + tankOptions[selectedTankIndexP2], Gdx.graphics.getWidth() / 2 + 50, Gdx.graphics.getHeight() / 2 + 20);
+            font.draw(batch, "P1 use A/D; P2 use LEFT/RIGHT to change selection.", Gdx.graphics.getWidth() / 2 - 180, Gdx.graphics.getHeight() / 2 - 20);
+            font.draw(batch, "Press ENTER to start Coop mode.", Gdx.graphics.getWidth() / 2 - 100, Gdx.graphics.getHeight() / 2 - 60);
 
-            // Process input for Player One (A/D keys).
+            // Process input for Player One selection.
             if (Gdx.input.isKeyJustPressed(Input.Keys.A)) {
                 selectedTankIndexP1 = (selectedTankIndexP1 - 1 + tankOptions.length) % tankOptions.length;
             }
             if (Gdx.input.isKeyJustPressed(Input.Keys.D)) {
                 selectedTankIndexP1 = (selectedTankIndexP1 + 1) % tankOptions.length;
             }
-            // Process input for Player Two (LEFT/RIGHT arrow keys).
+            // Process input for Player Two selection.
             if (Gdx.input.isKeyJustPressed(Input.Keys.LEFT)) {
                 selectedTankIndexP2 = (selectedTankIndexP2 - 1 + tankOptions.length) % tankOptions.length;
             }
             if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)) {
                 selectedTankIndexP2 = (selectedTankIndexP2 + 1) % tankOptions.length;
             }
+            // Instantiate the two player tanks when ENTER is pressed.
             if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
-                PlayerOneTank playerOne;
-                PlayerTwoTank playerTwo;
+                // Use the common parent type (e.g., PlayerTank) for both players.
+                PlayerTank playerOne;
+                PlayerTank playerTwo;
+
                 if (selectedTankIndexP1 == 0) {
-                    playerOne = new PlayerOneTank(100, 100); // Standard tank using WASD/J/K
+                    playerOne = new PlayerOnePlayerTank(100, 100);
                 } else if (selectedTankIndexP1 == 1) {
-                    playerOne = new PlayerOneTank(100, 100); // Or if you want a Sniper variant, you could have a subclass or use composition
+                    playerOne = new CoopSniperPlayerTankOne(100, 100);
                 } else if (selectedTankIndexP1 == 2) {
-                    playerOne = new PlayerOneTank(100, 100); // Similarly for Shotgun
+                    playerOne = new CoopShotgunPlayerTankOne(100, 100);
                 } else {
-                    playerOne = new PlayerOneTank(100, 100);
+                    playerOne = new PlayerOnePlayerTank(100, 100);
                 }
 
                 if (selectedTankIndexP2 == 0) {
-                    playerTwo = new PlayerTwoTank(200, 100); // Standard tank using arrow keys/NUMPAD
+                    playerTwo = new PlayerTwoPlayerTank(100, 100);
                 } else if (selectedTankIndexP2 == 1) {
-                    playerTwo = new PlayerTwoTank(200, 100);
+                    playerTwo = new CoopSniperPlayerTankTwo(100, 100);
                 } else if (selectedTankIndexP2 == 2) {
-                    playerTwo = new PlayerTwoTank(200, 100);
+                    playerTwo = new CoopShotgunPlayerTankTwo(100, 100);
                 } else {
-                    playerTwo = new PlayerTwoTank(200, 100);
+                    playerTwo = new PlayerTwoPlayerTank(100, 100);
                 }
+
+                // Set the screen to a level that supports two-player mode.
                 game.setScreen(new CoopLevelScreen(game, playerOne, playerTwo));
             }
-            }
+
+        }
         batch.end();
     }
 
     @Override
     public void resize(int width, int height) {
-        // Optionally update viewport here.
+        // Optionally update the viewport.
     }
 
     @Override
-    public void pause() {}
+    public void pause() {
+    }
+
     @Override
-    public void resume() {}
+    public void resume() {
+    }
+
     @Override
-    public void hide() {}
+    public void hide() {
+    }
 
     @Override
     public void dispose() {

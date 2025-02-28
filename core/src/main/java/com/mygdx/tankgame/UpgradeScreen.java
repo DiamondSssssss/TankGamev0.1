@@ -9,16 +9,16 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.mygdx.tankgame.levels.Level1Screen;
 import com.mygdx.tankgame.levels.Level2Screen;
 import com.mygdx.tankgame.levels.Level3Screen;
-import com.mygdx.tankgame.playertank.Tank;
+import com.mygdx.tankgame.playertank.PlayerTank;
 
 public class UpgradeScreen implements Screen {
     private TankGame game;
-    private Tank playerTank;
+    private PlayerTank playerTank;
     private SpriteBatch batch;
     private BitmapFont font;
     private int currentLevel; // The level the player just completed
 
-    public UpgradeScreen(TankGame game, Tank playerTank, int currentLevel) {
+    public UpgradeScreen(TankGame game, PlayerTank playerTank, int currentLevel) {
         this.game = game;
         this.playerTank = playerTank;
         this.currentLevel = currentLevel;

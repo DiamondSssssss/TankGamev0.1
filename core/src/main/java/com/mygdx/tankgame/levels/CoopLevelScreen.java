@@ -6,16 +6,13 @@ import com.mygdx.tankgame.*;
 import com.mygdx.tankgame.bullets.Bullet;
 import com.mygdx.tankgame.enemies.BossTank;
 import com.mygdx.tankgame.enemies.EnemyTank;
-import com.mygdx.tankgame.enemies.ChaserTank;
-import com.mygdx.tankgame.buildstuff.Wall;
-import com.mygdx.tankgame.playertank.Tank;
+import com.mygdx.tankgame.playertank.PlayerTank;
 import java.util.Iterator;
-import java.util.List;
 
 public class CoopLevelScreen extends LevelScreen {
-    private Tank playerTwo;
+    private PlayerTank playerTwo;
 
-    public CoopLevelScreen(TankGame game, Tank playerOne, Tank playerTwo) {
+    public CoopLevelScreen(TankGame game, PlayerTank playerOne, PlayerTank playerTwo) {
         // Call the base constructor with playerOne as the primary tank.
         super(game, playerOne);
         this.playerTwo = playerTwo;

@@ -5,25 +5,25 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector2;
 import com.mygdx.tankgame.bullets.Bullet;
 import com.mygdx.tankgame.enemies.EnemyTank;
-import com.mygdx.tankgame.playertank.Tank;
+import com.mygdx.tankgame.playertank.PlayerTank;
 import java.util.List;
 
-public class PlayerOneTank extends Tank {
+public class PlayerTwoPlayerTank extends PlayerTank {
     // Stores the last nonzero movement direction for aiming.
     private Vector2 lastMovement = new Vector2(1, 0); // Default facing right
 
-    public PlayerOneTank(float x, float y) {
+    public PlayerTwoPlayerTank(float x, float y) {
         super(x, y);
     }
 
     @Override
     public void update(float deltaTime, List<Bullet> bullets, List<EnemyTank> enemyTanks) {
-        // --- Process Movement Input using WASD ---
         float moveX = 0, moveY = 0;
-        if (Gdx.input.isKeyPressed(Input.Keys.W)) moveY += 1;
-        if (Gdx.input.isKeyPressed(Input.Keys.S)) moveY -= 1;
-        if (Gdx.input.isKeyPressed(Input.Keys.A)) moveX -= 1;
-        if (Gdx.input.isKeyPressed(Input.Keys.D)) moveX += 1;
+        // Movement keys: Arrow keys.
+        if (Gdx.input.isKeyPressed(Input.Keys.UP))    moveY += 1;
+        if (Gdx.input.isKeyPressed(Input.Keys.DOWN))  moveY -= 1;
+        if (Gdx.input.isKeyPressed(Input.Keys.LEFT))  moveX -= 1;
+        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) moveX += 1;
         Vector2 movement = new Vector2(moveX, moveY);
         if (movement.len() > 0) {
             movement.nor();
@@ -35,33 +35,30 @@ public class PlayerOneTank extends Tank {
         setRotation(angle);
         getSprite().setRotation(angle);
 
-        // --- Process Shooting and Ability Input ---
-        // Shooting key: J
-        if (Gdx.input.isKeyJustPressed(Input.Keys.J)) {
+        // Shooting key: NUMPAD 1
+        if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_1)) {
             shoot(bullets);
         }
-        // Ability key: K
-        if (Gdx.input.isKeyJustPressed(Input.Keys.K)) {
+        // Ability key: NUMPAD 2
+        if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_2)) {
             useAbility();
         }
 
-        // --- Perform Collision and Boundary Checks ---
-        // (We re-implement these parts from the base update())
-        checkBulletCollision(bullets, getExplosions());
-        checkTankCollisions(enemyTanks);
-        // Keep tank within screen boundaries.
+        // Boundary checks and collisions.
         Vector2 pos = getPosition();
         float spriteWidth = getSprite().getWidth();
         float spriteHeight = getSprite().getHeight();
         pos.x = Math.max(0, Math.min(Gdx.graphics.getWidth() - spriteWidth, pos.x));
         pos.y = Math.max(0, Math.min(Gdx.graphics.getHeight() - spriteHeight, pos.y));
         getSprite().setPosition(pos.x, pos.y);
+
+        checkBulletCollision(bullets, getExplosions());
+        checkTankCollisions(enemyTanks);
     }
 
     @Override
     public void shoot(List<Bullet> bullets) {
         if (isDestroyed()) return;
-        // Use lastMovement to determine shooting direction.
         float angle = lastMovement.angleDeg();
         float radians = (float) Math.toRadians(angle);
         float tankCenterX = getPosition().x + getSprite().getWidth() / 2;
@@ -74,6 +71,6 @@ public class PlayerOneTank extends Tank {
     }
 
     public void useAbility() {
-        System.out.println("Player One ability used!");
+        System.out.println("Player Two ability used!");
     }
 }

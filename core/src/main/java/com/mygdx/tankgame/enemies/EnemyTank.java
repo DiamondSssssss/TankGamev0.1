@@ -9,7 +9,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.mygdx.tankgame.bullets.Bullet;
 import com.mygdx.tankgame.Explosion;
-import com.mygdx.tankgame.playertank.Tank;
+import com.mygdx.tankgame.playertank.PlayerTank;
 
 import java.util.Iterator;
 import java.util.List;
@@ -22,7 +22,7 @@ public class EnemyTank {
     protected float speed = 100f;
     private float fireCooldown = 2f;
     private float timeSinceLastShot = 0f;
-    protected Tank player;
+    protected PlayerTank player;
     public List<Bullet> bullets;
     private boolean isDestroyed = false;
     boolean isExploding = false;
@@ -46,7 +46,7 @@ public class EnemyTank {
     private static final float MOVE_DURATION = 2f;  // Move for 2 seconds
     private static final float ROTATE_DURATION = 1f; // Rotate for 1 second
 
-    public EnemyTank(float x, float y, Tank player, List<Bullet> bullets) {
+    public EnemyTank(float x, float y, PlayerTank player, List<Bullet> bullets) {
         this.texture = new Texture(Gdx.files.internal("enemy_tank.png"));
         this.sprite = new Sprite(texture);
         sprite.setSize(64, 64);

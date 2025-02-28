@@ -10,7 +10,7 @@ import com.mygdx.tankgame.bullets.Bullet;
 import com.mygdx.tankgame.enemies.EnemyTank;
 import java.util.List;
 
-public class ShotgunTank extends Tank {
+public class ShotgunPlayerTank extends PlayerTank {
     // --- Shield fields ---
     protected boolean shieldActive = false;
     protected float shieldTimer = 0f;
@@ -25,7 +25,7 @@ public class ShotgunTank extends Tank {
     // --- Knockback configuration ---
     private final float knockbackForce = 50f;
 
-    public ShotgunTank(float x, float y) {
+    public ShotgunPlayerTank(float x, float y) {
         super(x, y);
         shieldTexture = new Texture(Gdx.files.internal("shield.png"));
         shieldSprite = new Sprite(shieldTexture);

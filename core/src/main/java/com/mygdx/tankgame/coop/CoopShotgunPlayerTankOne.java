@@ -5,46 +5,57 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector2;
 import com.mygdx.tankgame.bullets.Bullet;
 import com.mygdx.tankgame.enemies.EnemyTank;
-import com.mygdx.tankgame.playertank.SniperTank;
+import com.mygdx.tankgame.playertank.ShotgunPlayerTank;
 import java.util.List;
 
-public class CoopSniperTank extends SniperTank {
-    // Use this vector for determining aim based on keyboard input.
-    private Vector2 lastMovement = new Vector2(1, 0); // default facing right
+public class CoopShotgunPlayerTankOne extends ShotgunPlayerTank {
+    // Store the last movement direction to set rotation
+    private Vector2 lastMovement = new Vector2(1, 0); // Default facing right
 
-    public CoopSniperTank(float x, float y) {
+    public CoopShotgunPlayerTankOne(float x, float y) {
         super(x, y);
     }
 
     @Override
     public void update(float deltaTime, List<Bullet> bullets, List<EnemyTank> enemyTanks) {
-        // Process movement input using WASD.
+        // Handle movement using WASD
         float moveX = 0, moveY = 0;
         if (Gdx.input.isKeyPressed(Input.Keys.W)) moveY += 1;
         if (Gdx.input.isKeyPressed(Input.Keys.S)) moveY -= 1;
         if (Gdx.input.isKeyPressed(Input.Keys.A)) moveX -= 1;
         if (Gdx.input.isKeyPressed(Input.Keys.D)) moveX += 1;
+
         Vector2 movement = new Vector2(moveX, moveY);
         if (movement.len() > 0) {
             movement.nor();
             lastMovement.set(movement);
             getPosition().add(movement.scl(getSpeed() * deltaTime));
         }
-        // Set rotation to match last movement direction.
+
+        // Set rotation based on movement direction
         float newAngle = lastMovement.angleDeg();
         setRotation(newAngle);
         getSprite().setRotation(newAngle);
 
-        // Process shooting (e.g., key J) and ability (e.g., key K) input.
+        // Handle shooting (e.g., J for shoot, K for ability)
         if (Gdx.input.isKeyJustPressed(Input.Keys.J)) {
             shoot(bullets);
         }
-        if (Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT) && wallCooldownTimer <= 0) {
-            createWall();
-            wallCooldownTimer = wallCooldownDuration;
+        if (shieldCooldownTimer > 0) {
+            shieldCooldownTimer -= deltaTime;
+        }
+        if (Gdx.input.isButtonJustPressed(Input.Keys.K) && !shieldActive && shieldCooldownTimer <= 0) {
+            activateShield();
+            shieldCooldownTimer = shieldCooldownDuration;
+        }
+        if (shieldActive) {
+            shieldTimer -= deltaTime;
+            if (shieldTimer <= 0) {
+                shieldActive = false;
+            }
         }
 
-        // Perform collision and boundary checks.
+        // Check collisions and boundaries
         checkBulletCollision(bullets, getExplosions());
         checkTankCollisions(enemyTanks);
         Vector2 pos = getPosition();

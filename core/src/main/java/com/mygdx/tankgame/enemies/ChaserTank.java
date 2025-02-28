@@ -4,14 +4,14 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 import com.mygdx.tankgame.bullets.Bullet;
-import com.mygdx.tankgame.playertank.Tank;
+import com.mygdx.tankgame.playertank.PlayerTank;
 
 import java.util.List;
 
 public class ChaserTank extends EnemyTank {
     private boolean isExploding = false;
 
-    public ChaserTank(float x, float y, Tank player, List<Bullet> bullets) {
+    public ChaserTank(float x, float y, PlayerTank player, List<Bullet> bullets) {
         super(x, y, player,bullets); // Keep all logic from EnemyTank
         this.texture = new Texture(Gdx.files.internal("enemy_tank.png")); // Unique texture for ChaserTank
         this.speed = 120f; // Custom speed for chasing

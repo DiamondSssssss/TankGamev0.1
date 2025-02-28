@@ -8,7 +8,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.mygdx.tankgame.bullets.Bullet;
 import com.mygdx.tankgame.Explosion;
 import com.mygdx.tankgame.LevelScreen;
-import com.mygdx.tankgame.playertank.Tank;
+import com.mygdx.tankgame.playertank.PlayerTank;
 import com.mygdx.tankgame.TankGame;
 
 import java.util.List;
@@ -43,7 +43,7 @@ public class BossTank extends EnemyTank {
     private float dashTimeLeft = 0f;
     private float dashSpeed = 300f;      // Speed multiplier during dash
 
-    public BossTank(float x, float y, Tank player, TankGame game, List<Bullet> bullets) {
+    public BossTank(float x, float y, PlayerTank player, TankGame game, List<Bullet> bullets) {
         super(x, y, player, bullets);
         this.game = game;
         // Override the boss's texture.

@@ -12,16 +12,16 @@ import com.mygdx.tankgame.bullets.Bullet;
 import com.mygdx.tankgame.enemies.BossTank;
 import com.mygdx.tankgame.enemies.ChaserTank;
 import com.mygdx.tankgame.enemies.EnemyTank;
-import com.mygdx.tankgame.playertank.Tank;
-import com.mygdx.tankgame.playertank.SniperTank;
-import com.mygdx.tankgame.playertank.ShotgunTank;
+import com.mygdx.tankgame.playertank.PlayerTank;
+import com.mygdx.tankgame.playertank.SniperPlayerTank;
+import com.mygdx.tankgame.playertank.ShotgunPlayerTank;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 public abstract class LevelScreen implements Screen {
     protected final TankGame game;
-    protected final Tank playerTank;
+    protected final PlayerTank playerTank;
     protected final List<Bullet> bullets;
     protected final List<EnemyTank> enemies;
     protected final List<Explosion> explosions;
@@ -39,7 +39,7 @@ public abstract class LevelScreen implements Screen {
     private Texture abilityTextureSniper;
     private Texture abilityTextureShotgun;
 
-    public LevelScreen(TankGame game, Tank playerTank) {
+    public LevelScreen(TankGame game, PlayerTank playerTank) {
         this.game = game;
         this.playerTank = playerTank;
         bullets = new ArrayList<>();
@@ -149,12 +149,12 @@ public abstract class LevelScreen implements Screen {
         // Draw ability icon with cooldown overlay.
         Texture abilityTexture = null;
         float abilityCooldownPercentage = 0f;
-        if (playerTank instanceof SniperTank) {
+        if (playerTank instanceof SniperPlayerTank) {
             abilityTexture = abilityTextureSniper;
-            abilityCooldownPercentage = ((SniperTank) playerTank).getAbilityCooldownPercentage();
-        } else if (playerTank instanceof ShotgunTank) {
+            abilityCooldownPercentage = ((SniperPlayerTank) playerTank).getAbilityCooldownPercentage();
+        } else if (playerTank instanceof ShotgunPlayerTank) {
             abilityTexture = abilityTextureShotgun;
-            abilityCooldownPercentage = ((ShotgunTank) playerTank).getAbilityCooldownPercentage();
+            abilityCooldownPercentage = ((ShotgunPlayerTank) playerTank).getAbilityCooldownPercentage();
         }
         if (abilityTexture != null) {
             float iconWidth = 64;

@@ -4,14 +4,14 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.mygdx.tankgame.bullets.Bullet;
 import com.mygdx.tankgame.Explosion;
-import com.mygdx.tankgame.playertank.Tank;
+import com.mygdx.tankgame.playertank.PlayerTank;
 
 import java.util.List;
 
 public class EliteEnemyTank extends EnemyTank {
     private int hitPoints = 3; // Takes 3 bullets before being destroyed
 
-    public EliteEnemyTank(float x, float y, Tank player,List<Bullet> bullets) {
+    public EliteEnemyTank(float x, float y, PlayerTank player, List<Bullet> bullets) {
         super(x, y, player, bullets);
     }
     @Override

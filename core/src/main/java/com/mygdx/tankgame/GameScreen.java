@@ -7,14 +7,14 @@ import com.badlogic.gdx.graphics.GL20;
 import com.mygdx.tankgame.bullets.Bullet;
 import com.mygdx.tankgame.enemies.EliteEnemyTank;
 import com.mygdx.tankgame.enemies.EnemyTank;
-import com.mygdx.tankgame.playertank.Tank;
+import com.mygdx.tankgame.playertank.PlayerTank;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class GameScreen implements Screen {
     private final TankGame game;
-    private final Tank playerTank;
+    private final PlayerTank playerTank;
     private final List<Bullet> bullets;
     private final List<EnemyTank> enemies; // ✅ Changed from single enemy to List
     private final List<Explosion> explosions;
@@ -22,7 +22,7 @@ public class GameScreen implements Screen {
 
     public GameScreen(TankGame game) {
         this.game = game;
-        playerTank = new Tank(100, 100);
+        playerTank = new PlayerTank(100, 100);
         bullets = new ArrayList<>();
         explosions = new ArrayList<>();
         enemies = new ArrayList<>(); // ✅ Initialize enemies list

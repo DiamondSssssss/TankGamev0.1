@@ -14,7 +14,7 @@ import com.mygdx.tankgame.bullets.Bullet;
 import com.mygdx.tankgame.enemies.EnemyTank;
 import java.util.List;
 
-public class SniperTank extends Tank {
+public class SniperPlayerTank extends PlayerTank {
     // Time the shot has been charged so far.
     private float chargeTime = 0f;
     // Maximum time needed for full charge.
@@ -36,7 +36,7 @@ public class SniperTank extends Tank {
     // --- Texture for Charging Indicator ---
     private Texture chargeIndicatorTexture;
 
-    public SniperTank(float x, float y) {
+    public SniperPlayerTank(float x, float y) {
         super(x, y);
         // Assume the base tank’s normal speed is 200.
         normalSpeed = 200f;
