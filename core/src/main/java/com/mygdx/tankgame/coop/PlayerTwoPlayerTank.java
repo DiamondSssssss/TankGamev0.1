@@ -54,6 +54,7 @@ public class PlayerTwoPlayerTank extends PlayerTank {
 
         checkBulletCollision(bullets, getExplosions());
         checkTankCollisions(enemyTanks);
+        updateCommon(deltaTime);
     }
 
     @Override

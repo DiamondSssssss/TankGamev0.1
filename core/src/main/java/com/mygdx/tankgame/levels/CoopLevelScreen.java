@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.mygdx.tankgame.*;
 import com.mygdx.tankgame.bullets.Bullet;
 import com.mygdx.tankgame.enemies.BossTank;
+import com.mygdx.tankgame.enemies.ChaserTank;
 import com.mygdx.tankgame.enemies.EnemyTank;
 import com.mygdx.tankgame.playertank.PlayerTank;
 import java.util.Iterator;
@@ -21,8 +22,7 @@ public class CoopLevelScreen extends LevelScreen {
     @Override
     protected void setupLevel() {
         // Setup your level here – for example, spawn initial enemies.
-        // For demonstration, we’ll spawn a ChaserTank.
-        enemies.add(new BossTank(400, 400, playerTank,game,bullets)); // One enemy
+        enemies.add(new BossTank(400, 400, playerTank, game, bullets)); // Example enemy
     }
 
     @Override
@@ -36,7 +36,6 @@ public class CoopLevelScreen extends LevelScreen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         // --- Update Game Elements ---
-        // Update bullets.
         for (Bullet bullet : bullets) {
             bullet.update(delta);
         }
@@ -45,9 +44,8 @@ public class CoopLevelScreen extends LevelScreen {
         // Check bullet-wall collisions.
         checkBulletWallCollisions();
 
-        // Update player one (the primary tank) using the base LevelScreen update.
+        // Update players.
         playerTank.update(delta, bullets, enemies);
-        // Update player two.
         playerTwo.update(delta, bullets, enemies);
 
         // Update enemies.
@@ -76,8 +74,8 @@ public class CoopLevelScreen extends LevelScreen {
         // Update walls.
         updateWalls(delta);
 
-        // Check if either player is destroyed.
-        if (playerTank.isDestroyed() || playerTwo.isDestroyed()) {
+        // Check if both players are destroyed.
+        if (playerTank.isDestroyed() && playerTwo.isDestroyed()) {
             game.setScreen(new GameOverScreen(game));
             return;
         }
@@ -89,13 +87,38 @@ public class CoopLevelScreen extends LevelScreen {
 
         // --- Render Everything ---
         game.batch.begin();
-        // Render game elements from LevelScreen (player one, bullets, enemies, explosions, walls, UI).
+        // Render game elements (player one, bullets, enemies, explosions, walls, etc.)
         renderGameElements();
-        // Render player two.
+        // Also draw player two.
         playerTwo.draw(game.batch);
+
+        // --- Draw Player Health UI ---
+        // Draw player one's hearts (top left)
+        int currentHealthOne = playerTank.getCurrentHealth();
+        for (int i = 0; i < currentHealthOne; i++) {
+            game.batch.draw(heartTexture,
+                heartMarginX + i * (heartWidth + 5),
+                Gdx.graphics.getHeight() - heartHeight - heartMarginY,
+                heartWidth,
+                heartHeight);
+        }
+        // Draw player two's hearts (top right)
+        int currentHealthTwo = playerTwo.getCurrentHealth();
+        for (int i = 0; i < currentHealthTwo; i++) {
+            game.batch.draw(heartTexture,
+                Gdx.graphics.getWidth() - heartMarginX - heartWidth - i * (heartWidth + 5),
+                Gdx.graphics.getHeight() - heartHeight - heartMarginY,
+                heartWidth,
+                heartHeight);
+        }
+
+        // Optionally, you can draw ability icons or other UI elements here.
+
         game.batch.end();
     }
+    @Override
+    public void spawnChaserTank(){
+        pendingEnemies.add(new ChaserTank(600, 600, playerTank, playerTwo, bullets));
+    }
 
-    // Note: We assume that checkBulletWallCollisions, updateWalls, and renderGameElements
-    // are declared as protected in LevelScreen so they are accessible here.
 }

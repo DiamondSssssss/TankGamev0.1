@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.mygdx.tankgame.LevelScreen;
 import com.mygdx.tankgame.bullets.Bullet;
 import com.mygdx.tankgame.Explosion;
 import com.mygdx.tankgame.enemies.EnemyTank;
@@ -159,7 +160,7 @@ public class PlayerTank{
 
     private void triggerExplosion() {
         if (!isDestroyed) {
-            explosions.add(new Explosion(position.x, position.y));
+            LevelScreen.globalExplosions.add(new Explosion(position.x, position.y));
             isDestroyed = true;
             System.out.println("Tank destroyed!");
         }
@@ -258,6 +259,37 @@ public class PlayerTank{
     }
     protected List<Explosion> getExplosions() {
         return explosions;
+    }
+    protected void updateCommon(float deltaTime) {
+        // Update invincibility and blink timers if invincible
+        if (isInvincible) {
+            invincibilityTimer -= deltaTime;
+            blinkTimer += deltaTime;
+            if (blinkTimer >= blinkInterval) {
+                blinkTimer = 0;
+                drawSprite = !drawSprite;
+            }
+            if (invincibilityTimer <= 0) {
+                isInvincible = false;
+                drawSprite = true; // Ensure sprite is visible when invincibility ends
+            }
+        }
+
+        // Handle dash cooldown
+        if (dashCooldownRemaining > 0) dashCooldownRemaining -= deltaTime;
+
+        // Update dash duration
+        if (dashTimeRemaining > 0) {
+            dashTimeRemaining -= deltaTime;
+            if (dashTimeRemaining <= 0) {
+                dashTimeRemaining = 0;
+            }
+        }
+
+        // Boundary checking (if not handled by movement)
+        position.x = Math.max(0, Math.min(Gdx.graphics.getWidth() - sprite.getWidth(), position.x));
+        position.y = Math.max(0, Math.min(Gdx.graphics.getHeight() - sprite.getHeight(), position.y));
+        sprite.setPosition(position.x, position.y);
     }
 
 

@@ -49,6 +49,7 @@ public class PlayerOnePlayerTank extends PlayerTank {
         // (We re-implement these parts from the base update())
         checkBulletCollision(bullets, getExplosions());
         checkTankCollisions(enemyTanks);
+        updateCommon(deltaTime);
         // Keep tank within screen boundaries.
         Vector2 pos = getPosition();
         float spriteWidth = getSprite().getWidth();

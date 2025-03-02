@@ -36,10 +36,10 @@ public class CoopSniperPlayerTankTwo extends SniperPlayerTank {
         getSprite().setRotation(newAngle);
 
         // Use NUMPAD keys for shooting/abilities (adjust as needed)
-        if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_0)) { // Example: NUMPAD_0 to shoot
+        if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_1)) { // Example: NUMPAD_0 to shoot
             shoot(bullets);
         }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_1) && wallCooldownTimer <= 0) { // Example: NUMPAD_1 for ability
+        if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_2) && wallCooldownTimer <= 0) { // Example: NUMPAD_1 for ability
             createWall();
             wallCooldownTimer = wallCooldownDuration;
         }
@@ -47,6 +47,7 @@ public class CoopSniperPlayerTankTwo extends SniperPlayerTank {
         // Perform collision and boundary checks.
         checkBulletCollision(bullets, getExplosions());
         checkTankCollisions(enemyTanks);
+        updateCommon(deltaTime);
         Vector2 pos = getPosition();
         float spriteW = getSprite().getWidth();
         float spriteH = getSprite().getHeight();

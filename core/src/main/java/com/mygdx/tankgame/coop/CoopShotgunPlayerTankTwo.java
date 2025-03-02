@@ -38,13 +38,13 @@ public class CoopShotgunPlayerTankTwo extends ShotgunPlayerTank {
         getSprite().setRotation(newAngle);
 
         // Use NUMPAD keys for shooting/abilities (adjust as needed)
-        if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_0)) { // Example: NUMPAD_0 to shoot
+        if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_1)) { // Example: NUMPAD_0 to shoot
             shoot(bullets);
         }
         if (shieldCooldownTimer > 0) {
             shieldCooldownTimer -= deltaTime;
         }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_1) && !shieldActive && shieldCooldownTimer <= 0) { // Example: NUMPAD_1 for ability
+        if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_2) && !shieldActive && shieldCooldownTimer <= 0) { // Example: NUMPAD_1 for ability
             activateShield();
             shieldCooldownTimer = shieldCooldownDuration;
         }
@@ -58,6 +58,7 @@ public class CoopShotgunPlayerTankTwo extends ShotgunPlayerTank {
         // Check collisions and boundaries
         checkBulletCollision(bullets, getExplosions());
         checkTankCollisions(enemyTanks);
+        updateCommon(deltaTime);
         Vector2 pos = getPosition();
         float spriteW = getSprite().getWidth();
         float spriteH = getSprite().getHeight();

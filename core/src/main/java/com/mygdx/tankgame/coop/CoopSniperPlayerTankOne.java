@@ -39,7 +39,7 @@ public class CoopSniperPlayerTankOne extends SniperPlayerTank {
         if (Gdx.input.isKeyJustPressed(Input.Keys.J)) {
             shoot(bullets);
         }
-        if (Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT) && wallCooldownTimer <= 0) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.K) && wallCooldownTimer <= 0) {
             createWall();
             wallCooldownTimer = wallCooldownDuration;
         }
@@ -47,6 +47,7 @@ public class CoopSniperPlayerTankOne extends SniperPlayerTank {
         // Perform collision and boundary checks.
         checkBulletCollision(bullets, getExplosions());
         checkTankCollisions(enemyTanks);
+        updateCommon(deltaTime);
         Vector2 pos = getPosition();
         float spriteW = getSprite().getWidth();
         float spriteH = getSprite().getHeight();

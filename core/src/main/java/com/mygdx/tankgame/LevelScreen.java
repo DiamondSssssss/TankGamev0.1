@@ -27,13 +27,14 @@ public abstract class LevelScreen implements Screen {
     protected final List<Explosion> explosions;
     protected final List<EnemyTank> pendingEnemies;
     private static List<Wall> walls = new ArrayList<>();
+    public static List<Explosion> globalExplosions = new ArrayList<>();
     // Heart texture for displaying health
-    private Texture heartTexture;
-    private final int heartWidth = 32;
-    private final int heartHeight = 32;
-    private final int heartMarginX = 10;
-    private final int heartMarginY = 10;
-    private Texture bossBarTexture;
+    protected Texture heartTexture;
+    protected final int heartWidth = 32;
+    protected final int heartHeight = 32;
+    protected final int heartMarginX = 10;
+    protected final int heartMarginY = 10;
+    protected Texture bossBarTexture;
 
     // Ability icon textures
     private Texture abilityTextureSniper;
@@ -113,11 +114,16 @@ public abstract class LevelScreen implements Screen {
             goToUpgradeScreen();
             return;
         }
-
+        globalExplosions.removeIf(explosion -> {
+            explosion.update(delta);
+            return explosion.isFinished();
+        });
         game.batch.begin();
         renderGameElements();
         renderWalls();
-
+        for (Explosion explosion : globalExplosions) {
+            explosion.render(game.batch);
+        }
         // Draw boss health bar if exists.
         for (EnemyTank enemy : enemies) {
             if (enemy instanceof BossTank) {
@@ -225,9 +231,19 @@ public abstract class LevelScreen implements Screen {
             explosion.render(game.batch);
         }
     }
+    protected PlayerTank getSecondPlayer() {
+        return null; // By default, no second player exists.
+    }
 
     public void spawnChaserTank(){
-        pendingEnemies.add(new ChaserTank(600,600, playerTank, bullets));
+        PlayerTank secondPlayer = getSecondPlayer();
+        if(secondPlayer != null) {
+            // In coop mode, use a constructor that accepts two players.
+            pendingEnemies.add(new ChaserTank(600, 600, playerTank, secondPlayer, bullets));
+        } else {
+            // In single-player mode, use the one-player constructor.
+            pendingEnemies.add(new ChaserTank(600, 600, playerTank, bullets));
+        }
     }
 
     protected abstract void goToUpgradeScreen();

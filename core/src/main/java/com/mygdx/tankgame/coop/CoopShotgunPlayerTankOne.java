@@ -44,7 +44,7 @@ public class CoopShotgunPlayerTankOne extends ShotgunPlayerTank {
         if (shieldCooldownTimer > 0) {
             shieldCooldownTimer -= deltaTime;
         }
-        if (Gdx.input.isButtonJustPressed(Input.Keys.K) && !shieldActive && shieldCooldownTimer <= 0) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.K) && !shieldActive && shieldCooldownTimer <= 0) {
             activateShield();
             shieldCooldownTimer = shieldCooldownDuration;
         }
@@ -58,6 +58,7 @@ public class CoopShotgunPlayerTankOne extends ShotgunPlayerTank {
         // Check collisions and boundaries
         checkBulletCollision(bullets, getExplosions());
         checkTankCollisions(enemyTanks);
+        updateCommon(deltaTime);
         Vector2 pos = getPosition();
         float spriteW = getSprite().getWidth();
         float spriteH = getSprite().getHeight();
