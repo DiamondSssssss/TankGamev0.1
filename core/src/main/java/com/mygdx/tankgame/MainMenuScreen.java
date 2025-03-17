@@ -14,6 +14,7 @@ import com.mygdx.tankgame.coop.CoopSniperPlayerTankTwo;
 import com.mygdx.tankgame.coop.CoopShotgunPlayerTankOne;
 import com.mygdx.tankgame.coop.CoopShotgunPlayerTankTwo;
 import com.mygdx.tankgame.levels.CoopLevelScreen;
+import com.mygdx.tankgame.levels.Level1Screen;
 import com.mygdx.tankgame.levels.Level3Screen;
 import com.mygdx.tankgame.playertank.PlayerTank;
 import com.mygdx.tankgame.playertank.SniperPlayerTank;
@@ -103,7 +104,7 @@ public class MainMenuScreen implements Screen {
                 } else {
                     chosenPlayerTank = new PlayerTank(100, 100);
                 }
-                game.setScreen(new Level3Screen(game, chosenPlayerTank));
+                game.setScreen(new Level1Screen(game, chosenPlayerTank));
             }
         } else if (selectedMode == GameMode.COOP) {
             font.draw(batch, "Coop Mode - Select Tanks for Each Player", Gdx.graphics.getWidth() / 2 - 150, Gdx.graphics.getHeight() / 2 + 70);

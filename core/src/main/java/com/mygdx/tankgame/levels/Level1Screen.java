@@ -3,7 +3,6 @@ package com.mygdx.tankgame.levels;
 import com.mygdx.tankgame.playertank.PlayerTank;
 import com.mygdx.tankgame.UpgradeScreen;
 import com.mygdx.tankgame.enemies.EnemyTank;
-import com.mygdx.tankgame.LevelScreen;
 import com.mygdx.tankgame.TankGame;
 
 public class Level1Screen extends LevelScreen {
@@ -13,6 +12,7 @@ public class Level1Screen extends LevelScreen {
 
     @Override
     protected void setupLevel() {
+
         enemies.add(new EnemyTank(400, 400, playerTank,bullets)); // One enemy
     }
 

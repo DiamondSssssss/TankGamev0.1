@@ -8,7 +8,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
-import com.mygdx.tankgame.LevelScreen; // Used to add the wall to the level.
+import com.mygdx.tankgame.levels.LevelScreen; // Used to add the wall to the level.
 import com.mygdx.tankgame.buildstuff.Wall; // A simple Wall class.
 import com.mygdx.tankgame.bullets.Bullet;
 import com.mygdx.tankgame.enemies.EnemyTank;

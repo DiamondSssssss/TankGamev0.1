@@ -6,7 +6,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.mygdx.tankgame.LevelScreen;
+import com.mygdx.tankgame.levels.LevelScreen;
 import com.mygdx.tankgame.bullets.Bullet;
 import com.mygdx.tankgame.Explosion;
 import com.mygdx.tankgame.enemies.EnemyTank;

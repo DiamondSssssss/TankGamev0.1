@@ -2,7 +2,6 @@ package com.mygdx.tankgame.levels;
 
 import com.mygdx.tankgame.playertank.PlayerTank;
 import com.mygdx.tankgame.enemies.BossTank;
-import com.mygdx.tankgame.LevelScreen;
 import com.mygdx.tankgame.TankGame;
 import com.mygdx.tankgame.VictoryScreen;
 

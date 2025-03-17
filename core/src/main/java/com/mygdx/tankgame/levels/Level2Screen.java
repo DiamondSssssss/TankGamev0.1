@@ -3,7 +3,6 @@ package com.mygdx.tankgame.levels;
 import com.mygdx.tankgame.playertank.PlayerTank;
 import com.mygdx.tankgame.UpgradeScreen;
 import com.mygdx.tankgame.enemies.EnemyTank;
-import com.mygdx.tankgame.LevelScreen;
 import com.mygdx.tankgame.TankGame;
 
 public class Level2Screen extends LevelScreen {
