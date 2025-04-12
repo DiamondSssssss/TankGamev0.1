@@ -42,6 +42,7 @@ public abstract class LevelScreen implements Screen {
     // Ability icon textures
     private Texture abilityTextureSniper;
     private Texture abilityTextureShotgun;
+    protected Texture backgroundTexture;
 
     public LevelScreen(TankGame game, PlayerTank playerTank) {
         this.game = game;
@@ -122,6 +123,7 @@ public abstract class LevelScreen implements Screen {
             return explosion.isFinished();
         });
         game.batch.begin();
+        game.batch.draw(backgroundTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         renderGameElements();
         renderWalls();
         for (Explosion explosion : globalExplosions) {
