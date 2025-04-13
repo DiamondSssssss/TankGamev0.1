@@ -7,9 +7,9 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 public class Explosion {
     private static Texture explosionTexture;
-    private Sprite sprite;
+    private final Sprite sprite;
     private float timer = 0;
-    private float explosionDuration = 0.5f; // Explosion lasts 0.5 seconds
+    private final float explosionDuration = 0.5f; // Explosion lasts 0.5 seconds
     private boolean finished = false;
 
     public Explosion(float x, float y) {
@@ -37,9 +37,11 @@ public class Explosion {
     public boolean isFinished() {
         return finished;
     }
+
     public void draw(SpriteBatch batch) {
         sprite.draw(batch); // Render explosion sprite
     }
+
     public void dispose() {
         explosionTexture.dispose();
     }

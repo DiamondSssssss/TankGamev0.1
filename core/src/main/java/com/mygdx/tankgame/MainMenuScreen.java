@@ -7,18 +7,17 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.mygdx.tankgame.coop.PlayerOnePlayerTank;
-import com.mygdx.tankgame.coop.PlayerTwoPlayerTank;
-import com.mygdx.tankgame.coop.CoopSniperPlayerTankOne;
-import com.mygdx.tankgame.coop.CoopSniperPlayerTankTwo;
 import com.mygdx.tankgame.coop.CoopShotgunPlayerTankOne;
 import com.mygdx.tankgame.coop.CoopShotgunPlayerTankTwo;
+import com.mygdx.tankgame.coop.CoopSniperPlayerTankOne;
+import com.mygdx.tankgame.coop.CoopSniperPlayerTankTwo;
+import com.mygdx.tankgame.coop.PlayerOnePlayerTank;
+import com.mygdx.tankgame.coop.PlayerTwoPlayerTank;
 import com.mygdx.tankgame.levels.CoopLevelScreen;
 import com.mygdx.tankgame.levels.Level1Screen;
-import com.mygdx.tankgame.levels.Level3Screen;
 import com.mygdx.tankgame.playertank.PlayerTank;
-import com.mygdx.tankgame.playertank.SniperPlayerTank;
 import com.mygdx.tankgame.playertank.ShotgunPlayerTank;
+import com.mygdx.tankgame.playertank.SniperPlayerTank;
 
 public class MainMenuScreen implements Screen {
     private TankGame game;
@@ -48,7 +47,7 @@ public class MainMenuScreen implements Screen {
     @Override
     public void show() {
         batch = new SpriteBatch();
-        background = new Texture("menu_background.png"); // Ensure this is in assets/
+        background = new Texture("menu.jpg"); // Ensure this is in assets/
         font = new BitmapFont();
     }
 

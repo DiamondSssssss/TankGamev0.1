@@ -6,30 +6,25 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
 
 public class GameOverScreen implements Screen {
-    private TankGame game;
-    private SpriteBatch batch;
-    private BitmapFont font;
-    private Texture background;
-    private Stage stage;
+    private final SpriteBatch batch;
+    private final BitmapFont font;
+    private final Texture background;
+    private final Stage stage;
     private Skin skin;
-    private TextButton mainMenuButton;
-
     public GameOverScreen(final TankGame game) {
-        this.game = game;
         batch = new SpriteBatch();
         font = new BitmapFont(); // Default font
         background = new Texture("menu_background.png"); // Ensure you have a background image
 
         stage = new Stage();
         Gdx.input.setInputProcessor(stage);
-
 
         TextButton.TextButtonStyle buttonStyle = new TextButton.TextButtonStyle();
         buttonStyle.font = new BitmapFont();
@@ -49,7 +44,8 @@ public class GameOverScreen implements Screen {
     }
 
     @Override
-    public void show() {}
+    public void show() {
+    }
 
     @Override
     public void render(float delta) {
@@ -65,16 +61,20 @@ public class GameOverScreen implements Screen {
     }
 
     @Override
-    public void resize(int width, int height) {}
+    public void resize(int width, int height) {
+    }
 
     @Override
-    public void pause() {}
+    public void pause() {
+    }
 
     @Override
-    public void resume() {}
+    public void resume() {
+    }
 
     @Override
-    public void hide() {}
+    public void hide() {
+    }
 
     @Override
     public void dispose() {
