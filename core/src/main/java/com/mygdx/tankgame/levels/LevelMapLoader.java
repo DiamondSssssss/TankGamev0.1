@@ -15,6 +15,9 @@ public class LevelMapLoader {
     public static class MapData {
         public String background;
         public List<Wall> walls = new ArrayList<>();
+        public float[] bossPosition = null;
+
+        public List<float[]> enemyPositions = new ArrayList<>(); // [x, y]
     }
 
     public static MapData load(String mapPath) {
@@ -44,6 +47,24 @@ public class LevelMapLoader {
                 obs.getFloat("height")
             );
             data.walls.add(w);
+        }
+        JsonValue enemyArray = root.get("enemies");
+        if (enemyArray != null) {
+            for (JsonValue enemy : enemyArray) {
+                float[] pos = new float[] {
+                    enemy.getFloat("x"),
+                    enemy.getFloat("y")
+                };
+                data.enemyPositions.add(pos);
+            }
+        }
+        // Optional boss spawn position
+        JsonValue boss = root.get("boss");
+        if (boss != null) {
+            data.bossPosition = new float[] {
+                boss.getFloat("x"),
+                boss.getFloat("y")
+            };
         }
 
         return data;

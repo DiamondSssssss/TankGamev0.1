@@ -25,9 +25,10 @@ public class Level1Screen extends LevelScreen {
         for (Wall wall : mapData.walls) {
             addWall(wall);
         }
+        for (float[] pos : mapData.enemyPositions) {
+            enemies.add(new EnemyTank(pos[0], pos[1], playerTank, bullets));
+        }
 
-        // Add enemies manually for now (can also be added to JSON later if needed)
-        enemies.add(new EnemyTank(400, 400, playerTank, bullets));
     }
 
     @Override

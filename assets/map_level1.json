@@ -1,13 +1,17 @@
 {
   "background": "background1.jpg",
   "walls": [
-    { "x": 0, "y": 0, "width": 800, "height": 10 },
-    { "x": 0, "y": 590, "width": 800, "height": 10 },
-    { "x": 0, "y": 0, "width": 10, "height": 600 },
-    { "x": 790, "y": 0, "width": 10, "height": 600 }
+    { "x": 0, "y": 0, "width": 1280, "height": 50 },
+    { "x": 0, "y": 670, "width": 1280, "height": 50 },
+    { "x": 0, "y": 0, "width": 50, "height": 720 },
+    { "x": 1230, "y": 0, "width": 50, "height": 720 }
   ],
   "obstacles": [
-    { "x": 300, "y": 300, "width": 40, "height": 40 },
-    { "x": 500, "y": 200, "width": 60, "height": 60 }
+    { "x": 300, "y": 300, "width": 100, "height": 50 },
+    { "x": 500, "y": 400, "width": 50, "height": 100 },
+    { "x": 700, "y": 200, "width": 150, "height": 50 }
+  ],
+  "enemies": [
+    { "x": 400, "y": 400 }
   ]
 }

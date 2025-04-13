@@ -1,0 +1,13 @@
+{
+  "background": "background1.jpg",
+  "walls": [
+    { "x": 0, "y": 0, "width": 50, "height": 720 },
+    { "x": 1230, "y": 0, "width": 50, "height": 720 },
+    { "x": 0, "y": 0, "width": 1280, "height": 50 },
+    { "x": 0, "y": 670, "width": 1280, "height": 50 },
+    { "x": 300, "y": 300, "width": 150, "height": 150 },
+    { "x": 800, "y": 300, "width": 150, "height": 150 },
+    { "x": 550, "y": 150, "width": 100, "height": 100 },
+    { "x": 550, "y": 500, "width": 100, "height": 100 }
+  ]
+}
