@@ -5,8 +5,16 @@
     { "x": 1230, "y": 0, "width": 50, "height": 720 },
     { "x": 0, "y": 0, "width": 1280, "height": 50 },
     { "x": 0, "y": 670, "width": 1280, "height": 50 },
-    { "x": 200, "y": 250, "width": 200, "height": 50 },
-    { "x": 400, "y": 500, "width": 50, "height": 150 },
-    { "x": 800, "y": 400, "width": 100, "height": 100 }
+    { "x": 150, "y": 300, "width": 300, "height": 30 },
+    { "x": 500, "y": 100, "width": 50, "height": 200 },
+    { "x": 900, "y": 500, "width": 200, "height": 50 },
+    { "x": 600, "y": 600, "width": 100, "height": 50 }
+  ],
+  "obstacles": [
+    { "x": 350, "y": 200, "width": 50, "height": 50, "type": "rock" },
+    { "x": 750, "y": 400, "width": 60, "height": 60, "type": "tree" }
+  ],
+  "enemies": [
+    { "x": 400, "y": 400 }
   ]
 }

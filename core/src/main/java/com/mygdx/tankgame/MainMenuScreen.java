@@ -15,6 +15,8 @@ import com.mygdx.tankgame.coop.PlayerOnePlayerTank;
 import com.mygdx.tankgame.coop.PlayerTwoPlayerTank;
 import com.mygdx.tankgame.levels.CoopLevelScreen;
 import com.mygdx.tankgame.levels.Level1Screen;
+import com.mygdx.tankgame.online.MultiplayerConnectionScreen;
+import com.mygdx.tankgame.online.MultiplayerLobbyScreen;
 import com.mygdx.tankgame.playertank.PlayerTank;
 import com.mygdx.tankgame.playertank.ShotgunPlayerTank;
 import com.mygdx.tankgame.playertank.SniperPlayerTank;
@@ -27,7 +29,7 @@ public class MainMenuScreen implements Screen {
 
     // --- State enums ---
     private enum MenuState { MODE_SELECTION, TANK_SELECTION }
-    private enum GameMode { CLASSIC, COOP }
+    private enum GameMode { CLASSIC, COOP , ONLINE}
 
     private MenuState menuState = MenuState.MODE_SELECTION;
     private GameMode selectedMode = GameMode.CLASSIC; // default
@@ -59,17 +61,23 @@ public class MainMenuScreen implements Screen {
         if (menuState == MenuState.MODE_SELECTION) {
             // Toggle mode with LEFT/RIGHT.
             if (Gdx.input.isKeyJustPressed(Input.Keys.LEFT) || Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)) {
-                selectedMode = (selectedMode == GameMode.CLASSIC) ? GameMode.COOP : GameMode.CLASSIC;
+                selectedMode = (selectedMode == GameMode.CLASSIC) ? GameMode.COOP :
+                    (selectedMode == GameMode.COOP) ? GameMode.ONLINE : GameMode.CLASSIC;
             }
             // Press ENTER to proceed.
             if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
-                menuState = MenuState.TANK_SELECTION;
+                if (selectedMode == GameMode.ONLINE) {
+                    game.setScreen(new MultiplayerLobbyScreen(game)); // New screen for connection setup
+                } else {
+                    menuState = MenuState.TANK_SELECTION;
+                }
             }
 
             batch.begin();
             batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
             font.draw(batch, "Select Mode:", Gdx.graphics.getWidth() / 2 - 50, Gdx.graphics.getHeight() / 2 + 50);
-            String modeText = (selectedMode == GameMode.CLASSIC) ? "Classic Mode" : "Coop Mode";
+            String modeText = (selectedMode == GameMode.CLASSIC) ? "Classic Mode" :
+                (selectedMode == GameMode.COOP) ? "Coop Mode" : "Online Mode";
             font.draw(batch, modeText, Gdx.graphics.getWidth() / 2 - 50, Gdx.graphics.getHeight() / 2);
             font.draw(batch, "Use LEFT/RIGHT arrows to toggle mode.", Gdx.graphics.getWidth() / 2 - 150, Gdx.graphics.getHeight() / 2 - 30);
             font.draw(batch, "Press ENTER to continue.", Gdx.graphics.getWidth() / 2 - 80, Gdx.graphics.getHeight() / 2 - 60);
