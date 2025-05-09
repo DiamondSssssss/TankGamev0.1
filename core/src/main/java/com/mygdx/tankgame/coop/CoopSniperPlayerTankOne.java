@@ -36,9 +36,12 @@ public class CoopSniperPlayerTankOne extends SniperPlayerTank {
         getSprite().setRotation(newAngle);
 
         // Process shooting (e.g., key J) and ability (e.g., key K) input.
-        if (Gdx.input.isKeyJustPressed(Input.Keys.J)) {
-            shoot(bullets);
+        if (Gdx.input.isKeyJustPressed(Input.Keys.J) && shootCooldownTimer <= 0) {
+            chargeTime = maxChargeTime; // full charge
+            shootCharged(bullets);
+            shootCooldownTimer = shootCooldownDuration; // reset cooldown
         }
+
         if (Gdx.input.isKeyJustPressed(Input.Keys.K) && wallCooldownTimer <= 0) {
             createWall();
             wallCooldownTimer = wallCooldownDuration;
@@ -54,5 +57,8 @@ public class CoopSniperPlayerTankOne extends SniperPlayerTank {
         pos.x = Math.max(0, Math.min(Gdx.graphics.getWidth() - spriteW, pos.x));
         pos.y = Math.max(0, Math.min(Gdx.graphics.getHeight() - spriteH, pos.y));
         getSprite().setPosition(pos.x, pos.y);
+        shootCooldownTimer -= deltaTime;
+        wallCooldownTimer -= deltaTime;
+
     }
 }

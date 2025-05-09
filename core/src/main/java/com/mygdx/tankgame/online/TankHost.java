@@ -5,45 +5,70 @@ import java.net.*;
 
 public class TankHost {
     private int port;
-    private ClientConnectListener connectionListener;
+    private ServerSocket serverSocket;
+    private Socket clientSocket;
+    private PrintWriter out;
+    private BufferedReader in;
+    private ConnectionListener listener;
 
     public TankHost(int port) {
         this.port = port;
     }
 
-    public void setConnectionListener(ClientConnectListener listener) {
-        this.connectionListener = listener;
+    // Start the server in a new thread
+    public void startServer() {
+        new Thread(() -> {
+            try {
+                serverSocket = new ServerSocket(port);
+                System.out.println("Server started, waiting for client...");
+
+                // Wait for client to connect
+                clientSocket = serverSocket.accept();
+                System.out.println("Client connected!");
+
+                in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                out = new PrintWriter(clientSocket.getOutputStream(), true);
+
+                // Send a welcome message to the client
+                out.println("Welcome to the game!");
+
+                // Start reading client messages
+                listenToClient();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }).start(); // Run server logic on a background thread
     }
 
-    public void startServer() {
+    private void listenToClient() {
         try {
-            ServerSocket serverSocket = new ServerSocket(port);
-            System.out.println("Server started, waiting for client...");
-
-            Socket clientSocket = serverSocket.accept();
-            System.out.println("Client connected!");
-
-            // Notify GUI thread via listener
-            if (connectionListener != null) {
-                connectionListener.onClientConnected();
+            String message;
+            while ((message = in.readLine()) != null) {
+                System.out.println("Received from client: " + message);
+                if (listener != null) {
+                    listener.onClientMessage(message);
+                }
             }
-
-            BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-
-            out.println("Server Started, Client Connected!");
-
-            String inputLine;
-            while ((inputLine = in.readLine()) != null) {
-                System.out.println("Client: " + inputLine);
-                out.println("Server: " + inputLine);
-            }
-
-            clientSocket.close();
-            serverSocket.close();
         } catch (IOException e) {
-            System.err.println("Error starting the server: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    // Send message to client
+    public void sendToClient(String message) {
+        if (out != null) {
+            out.println(message);
+        }
+    }
+
+    // Set the listener to notify when messages are received
+    public void setConnectionListener(ConnectionListener listener) {
+        this.listener = listener;
+    }
+
+    // Interface for connection listener
+    public interface ConnectionListener {
+        void onClientMessage(String message);
     }
 }

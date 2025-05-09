@@ -10,30 +10,31 @@ import java.util.List;
 
 public class ChaserTank extends EnemyTank {
     private boolean isExploding = false;
-    // Reference to the primary target and a secondary target.
     private PlayerTank playerOne;
     private PlayerTank playerTwo;
 
     public ChaserTank(float x, float y, PlayerTank playerOne, PlayerTank playerTwo, List<Bullet> bullets) {
-        super(x, y, playerOne, bullets); // We pass playerOne for backward compatibility if needed.
+        super(x, y, playerOne, bullets); // Default target still required
         this.playerOne = playerOne;
-        this.playerTwo = playerTwo; // Store the second player.
-        this.texture = new Texture(Gdx.files.internal("enemy_tank.png")); // Unique texture for ChaserTank
-        this.speed = 120f; // Custom speed for chasing
+        this.playerTwo = playerTwo;
+        this.texture = new Texture(Gdx.files.internal("enemy_tank.png"));
+        this.speed = 120f;
     }
+
     public ChaserTank(float x, float y, PlayerTank player, List<Bullet> bullets) {
         this(x, y, player, null, bullets);
     }
 
     @Override
     public void update(float delta) {
-        if (isDestroyed()) return; // Stop updating if destroyed
+        if (isDestroyed()) return;
 
         if (isExploding()) {
             setExplosionTimer(getExplosionTimer() - delta);
             setDestroyed(true);
-            return; // Stop updating movement/shooting while exploding
+            return;
         }
+
         chasePlayer(delta);
         checkPlayerCollision();
         super.update(delta);
@@ -44,17 +45,10 @@ public class ChaserTank extends EnemyTank {
     }
 
     private void chasePlayer(float delta) {
-        // Determine the target: if both players are alive, choose the closer one.
-        PlayerTank target = playerOne;
-        if (playerTwo != null && !playerTwo.isDestroyed()) {
-            float distOne = playerOne.getPosition().dst(position);
-            float distTwo = playerTwo.getPosition().dst(position);
-            if (distTwo < distOne) {
-                target = playerTwo;
-            }
-        }
+        PlayerTank target = chooseAliveTarget();
 
-        // Now chase the chosen target.
+        if (target == null) return; // No valid targets
+
         Vector2 direction = target.getPosition().cpy().sub(position).nor();
         position.add(direction.scl(speed * delta));
 
@@ -62,13 +56,30 @@ public class ChaserTank extends EnemyTank {
         sprite.setRotation(direction.angleDeg());
     }
 
+    private PlayerTank chooseAliveTarget() {
+        boolean p1Alive = playerOne != null && !playerOne.isDestroyed();
+        boolean p2Alive = playerTwo != null && !playerTwo.isDestroyed();
+
+        if (p1Alive && p2Alive) {
+            float distOne = playerOne.getPosition().dst(position);
+            float distTwo = playerTwo.getPosition().dst(position);
+            return (distTwo < distOne) ? playerTwo : playerOne;
+        } else if (p1Alive) {
+            return playerOne;
+        } else if (p2Alive) {
+            return playerTwo;
+        }
+        return null; // both are dead
+    }
+
     public void checkPlayerCollision() {
-        // Check collision against both players.
-        if (getBoundingRectangle().overlaps(playerOne.getBoundingRectangle())) {
+        if (playerOne != null && !playerOne.isDestroyed()
+            && getBoundingRectangle().overlaps(playerOne.getBoundingRectangle())) {
             System.out.println("ChaserTank hit PlayerOne! Exploding...");
             playerOne.takeDamage(1);
             setDestroyed(true);
-        } else if (playerTwo != null && getBoundingRectangle().overlaps(playerTwo.getBoundingRectangle())) {
+        } else if (playerTwo != null && !playerTwo.isDestroyed()
+            && getBoundingRectangle().overlaps(playerTwo.getBoundingRectangle())) {
             System.out.println("ChaserTank hit PlayerTwo! Exploding...");
             playerTwo.takeDamage(1);
             setDestroyed(true);
@@ -77,6 +88,6 @@ public class ChaserTank extends EnemyTank {
 
     @Override
     public void shoot() {
-        // Do nothing: ChaserTank doesn't shoot.
+        // ChaserTank does not shoot
     }
 }

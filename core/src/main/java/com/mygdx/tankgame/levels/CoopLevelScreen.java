@@ -45,8 +45,12 @@ public class CoopLevelScreen extends LevelScreen {
         checkBulletWallCollisions();
 
         // Update players.
-        playerTank.update(delta, bullets, enemies);
-        playerTwo.update(delta, bullets, enemies);
+        // Update players.
+        if (!playerTank.isDestroyed())
+            playerTank.update(delta, bullets, enemies);
+        if (!playerTwo.isDestroyed())
+            playerTwo.update(delta, bullets, enemies);
+
 
         // Update enemies.
         for (Iterator<EnemyTank> enemyIterator = enemies.iterator(); enemyIterator.hasNext();) {

@@ -54,5 +54,7 @@ public class CoopSniperPlayerTankTwo extends SniperPlayerTank {
         pos.x = Math.max(0, Math.min(Gdx.graphics.getWidth() - spriteW, pos.x));
         pos.y = Math.max(0, Math.min(Gdx.graphics.getHeight() - spriteH, pos.y));
         getSprite().setPosition(pos.x, pos.y);
+        shootCooldownTimer -= deltaTime;
+        wallCooldownTimer -= deltaTime;
     }
 }

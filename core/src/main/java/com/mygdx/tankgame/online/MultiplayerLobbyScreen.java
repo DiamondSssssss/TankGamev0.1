@@ -7,10 +7,23 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.Input;
 import com.mygdx.tankgame.TankGame;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 public class MultiplayerLobbyScreen extends ScreenAdapter {
     private final TankGame game;
     private BitmapFont font;
-    private String ipAddress = "localhost";
+    private String ipAddress;
+
+    {
+        try {
+            ipAddress = InetAddress.getLocalHost().getHostAddress();
+        } catch (UnknownHostException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    ;
     private boolean typingIp = false;
 
     private int screenWidth;

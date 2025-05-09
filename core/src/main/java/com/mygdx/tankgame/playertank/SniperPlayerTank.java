@@ -16,25 +16,25 @@ import java.util.List;
 
 public class SniperPlayerTank extends PlayerTank {
     // Time the shot has been charged so far.
-    private float chargeTime = 0f;
+    protected float chargeTime = 0f;
     // Maximum time needed for full charge.
-    private final float maxChargeTime = 3f;
+    protected final float maxChargeTime = 3f;
     // Whether the tank is currently charging a shot.
-    private boolean isCharging = false;
+    protected boolean isCharging = false;
     // Cache the normal movement speed.
-    private float normalSpeed;
+    protected float normalSpeed;
 
     // --- Wall Ability Cooldown Fields ---
     protected float wallCooldownTimer = 0f;
     protected final float wallCooldownDuration = 10f;
 
     // --- Shooting Cooldown Fields ---
-    private float shootCooldownTimer = 0f;
+    protected float shootCooldownTimer = 0f;
     // Increase the cooldown duration so the tank shoots slower.
-    private final float shootCooldownDuration = 3f;  // 3 seconds between shots.
+    protected final float shootCooldownDuration = 3f;  // 3 seconds between shots.
 
     // --- Texture for Charging Indicator ---
-    private Texture chargeIndicatorTexture;
+    protected Texture chargeIndicatorTexture;
 
     public SniperPlayerTank(float x, float y) {
         super(x, y);
@@ -109,7 +109,7 @@ public class SniperPlayerTank extends PlayerTank {
         // Do nothing: SniperTank fires only via the charge mechanism in update().
     }
 
-    private void shootCharged(List<Bullet> bullets) {
+    protected void shootCharged(List<Bullet> bullets) {
         float damage = 1f + 9f * (chargeTime / maxChargeTime);
         float maxDeviation = 30f;
         float deviation = maxDeviation * (1 - (chargeTime / maxChargeTime));

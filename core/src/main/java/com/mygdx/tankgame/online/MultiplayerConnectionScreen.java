@@ -41,10 +41,13 @@ public class MultiplayerConnectionScreen extends ScreenAdapter {
 
         if (isHost) {
             tankHost = new TankHost(5555);
-            tankHost.setConnectionListener(() -> {
+            tankHost.setConnectionListener((String message) -> {
                 // This runs in the server thread, so make sure we safely update LibGDX state
-                Gdx.app.postRunnable(() -> isClientConnected = true);
-            });// Initialize TankHost with a port number
+                Gdx.app.postRunnable(() -> {
+                    isClientConnected = true;
+                    System.out.println("Received message: " + message); // You can log or process the message as needed
+                });
+            });
         }
     }
 
@@ -54,7 +57,6 @@ public class MultiplayerConnectionScreen extends ScreenAdapter {
             // Host mode
             new Thread(() -> {
                 tankHost.startServer();  // Start the server in a new thread
-                isClientConnected = true; // Simulate client joining after server starts
             }).start();
         } else {
             // Client mode
