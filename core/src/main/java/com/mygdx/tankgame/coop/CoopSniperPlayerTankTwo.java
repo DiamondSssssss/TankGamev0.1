@@ -37,7 +37,9 @@ public class CoopSniperPlayerTankTwo extends SniperPlayerTank {
 
         // Use NUMPAD keys for shooting/abilities (adjust as needed)
         if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_1)) { // Example: NUMPAD_0 to shoot
-            shoot(bullets);
+            chargeTime = maxChargeTime; // full charge
+            shootCharged(bullets);
+            shootCooldownTimer = shootCooldownDuration; // reset cooldown
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_2) && wallCooldownTimer <= 0) { // Example: NUMPAD_1 for ability
             createWall();

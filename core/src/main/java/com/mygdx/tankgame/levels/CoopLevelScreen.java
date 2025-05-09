@@ -3,12 +3,14 @@ package com.mygdx.tankgame.levels;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.mygdx.tankgame.*;
+import com.mygdx.tankgame.buildstuff.Wall;
 import com.mygdx.tankgame.bullets.Bullet;
 import com.mygdx.tankgame.enemies.BossTank;
 import com.mygdx.tankgame.enemies.ChaserTank;
 import com.mygdx.tankgame.enemies.EnemyTank;
 import com.mygdx.tankgame.playertank.PlayerTank;
 import java.util.Iterator;
+import java.util.List;
 
 public class CoopLevelScreen extends LevelScreen {
     private PlayerTank playerTwo;
@@ -93,6 +95,10 @@ public class CoopLevelScreen extends LevelScreen {
         game.batch.begin();
         // Render game elements (player one, bullets, enemies, explosions, walls, etc.)
         renderGameElements();
+        // Render walls
+        for (Wall wall : walls) {
+            wall.draw(game.batch);  // Draw each wall.
+        }
         // Also draw player two.
         playerTwo.draw(game.batch);
 
@@ -120,6 +126,7 @@ public class CoopLevelScreen extends LevelScreen {
 
         game.batch.end();
     }
+
     @Override
     public void spawnChaserTank(){
         pendingEnemies.add(new ChaserTank(600, 600, playerTank, playerTwo, bullets));

@@ -29,7 +29,7 @@ public abstract class LevelScreen implements Screen {
     protected final List<EnemyTank> enemies;
     protected final List<Explosion> explosions;
     protected final List<EnemyTank> pendingEnemies;
-    private static List<Wall> walls = new ArrayList<>();
+    protected static List<Wall> walls = new ArrayList<>();
     public static List<Explosion> globalExplosions = new ArrayList<>();
     // Heart texture for displaying health
     protected Texture heartTexture;
@@ -189,7 +189,7 @@ public abstract class LevelScreen implements Screen {
         }
     }
 
-    private void updateGameElements(float delta) {
+    void updateGameElements(float delta) {
         for (Bullet bullet : bullets) {
             bullet.update(delta);
         }

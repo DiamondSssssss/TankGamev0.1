@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.mygdx.tankgame.buildstuff.Wall;
 import com.mygdx.tankgame.levels.LevelScreen;
 import com.mygdx.tankgame.bullets.Bullet;
 import com.mygdx.tankgame.Explosion;
@@ -293,4 +294,6 @@ public class PlayerTank{
     }
 
 
+    public void setWalls(List<Wall> sharedWalls) {
+    }
 }
