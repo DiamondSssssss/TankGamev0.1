@@ -52,8 +52,11 @@ public class MultiplayerConnectionScreen extends ScreenAdapter {
                 tankClient = new TankClient(ipAddress, 5555);
                 tankClient.setConnectionListener((String message) -> {
                     Gdx.app.postRunnable(() -> {
-                        System.out.println("[Client] Host message: " + message);
-                        isClientConnected = true; // Not strictly needed, but if host replies, we know it's alive
+                        if ("StartGame".equals(message)) {
+                            game.setScreen(new MultiplayerScreen(game, false, ipAddress));
+                        } else {
+                            isClientConnected = true;
+                        }
                     });
                 });
                 tankClient.startClient(); // Sends "ClientHello"
@@ -104,6 +107,7 @@ public class MultiplayerConnectionScreen extends ScreenAdapter {
 
             if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
                 gameStarted = true;
+                tankHost.sendToClient("StartGame");
                 game.setScreen(new MultiplayerScreen(game, true, "localhost")); // Host always uses localhost
             }
         }
