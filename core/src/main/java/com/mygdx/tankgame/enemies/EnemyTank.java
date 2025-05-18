@@ -25,7 +25,7 @@ public class EnemyTank {
     protected PlayerTank player;
     public List<Bullet> bullets;
     private boolean isDestroyed = false;
-    boolean isExploding = false;
+    public boolean isExploding = false;
     private float explosionTimer = 1.5f; // 1.5 seconds explosion animation
 
     public Rectangle getBoundingRectangle() {

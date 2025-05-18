@@ -77,14 +77,16 @@ public class MultiplayerConnectionScreen extends ScreenAdapter {
                     isClientConnected = true;
 
                     // You may want to keep the socket open or store it for gameplay
-                    // For now, just keep it connected in background
+                    // For now, just keep it connected in the background
                 } catch (IOException e) {
+                    Gdx.app.postRunnable(() -> {
+                        System.out.println("Error in client connection: " + e.getMessage());
+                    });
                     e.printStackTrace();
                 }
             }).start();
         }
     }
-
 
     @Override
     public void render(float delta) {

@@ -96,7 +96,7 @@ public abstract class LevelScreen implements Screen {
         }
     }
 
-    private void renderWalls() {
+    public void renderWalls() {
         for (Wall wall : walls) {
             wall.draw(game.batch);
         }
@@ -108,7 +108,6 @@ public abstract class LevelScreen implements Screen {
 
         handleInput();
         updateGameElements(delta);
-
         if (playerTank.isDestroyed()) {
             game.setScreen(new GameOverScreen(game));
             return;
@@ -118,11 +117,11 @@ public abstract class LevelScreen implements Screen {
             goToUpgradeScreen();
             return;
         }
+        game.batch.begin();
         globalExplosions.removeIf(explosion -> {
             explosion.update(delta);
             return explosion.isFinished();
         });
-        game.batch.begin();
         game.batch.draw(backgroundTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         renderGameElements();
         renderWalls();
@@ -183,7 +182,7 @@ public abstract class LevelScreen implements Screen {
         game.batch.end();
     }
 
-    private void handleInput() {
+    public void handleInput() {
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
             playerTank.shoot(bullets);
         }
