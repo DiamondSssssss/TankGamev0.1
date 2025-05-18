@@ -1,73 +1,94 @@
+// TankHost.java
 package com.mygdx.tankgame.online;
 
-import java.io.*;
 import java.net.*;
+import java.nio.charset.StandardCharsets;
 
+/**
+ * UDP-based host service.
+ * Thread 1: Server startup (invoked externally)
+ * Thread 2: receiveLoop() — blocking receive
+ * Thread 3: broadcastLoop() — periodic broadcasts
+ */
 public class TankHost {
-    private int port;
-    private ServerSocket serverSocket;
-    private Socket clientSocket;
-    private PrintWriter out;
-    private BufferedReader in;
+    private final int port;
+    private DatagramSocket socket;
+    private InetSocketAddress clientAddress;
     private ConnectionListener listener;
+    private volatile boolean running = true;
 
     public TankHost(int port) {
         this.port = port;
     }
 
-    // Start the server in a new thread
+    /**
+     * Call once to start all host threads.
+     */
     public void startServer() {
-        new Thread(() -> {
-            try {
-                serverSocket = new ServerSocket(port);
-                System.out.println("Server started, waiting for client...");
-
-                // Wait for client to connect
-                clientSocket = serverSocket.accept();
-                System.out.println("Client connected!");
-
-                in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-                out = new PrintWriter(clientSocket.getOutputStream(), true);
-
-                // Send a welcome message to the client
-                out.println("Welcome to the game!");
-
-                // Start reading client messages
-                listenToClient();
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }).start(); // Run server logic on a background thread
-    }
-
-    private void listenToClient() {
         try {
-            String message;
-            while ((message = in.readLine()) != null) {
-                System.out.println("Received from client: " + message);
-                if (listener != null) {
-                    listener.onClientMessage(message);
-                }
-            }
-        } catch (IOException e) {
+            socket = new DatagramSocket(port);
+            System.out.println("[Host] Listening on UDP port " + port);
+            // Thread 2: receive
+            new Thread(this::receiveLoop, "Host-Receive").start();
+            // Thread 3: broadcast
+            new Thread(this::broadcastLoop, "Host-Broadcast").start();
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    // Send message to client
-    public void sendToClient(String message) {
-        if (out != null) {
-            out.println(message);
+    private void receiveLoop() {
+        byte[] buf = new byte[512];
+        try {
+            while (running) {
+                DatagramPacket pkt = new DatagramPacket(buf, buf.length);
+                socket.receive(pkt);
+                String msg = new String(pkt.getData(), 0, pkt.getLength(), StandardCharsets.UTF_8);
+                // Learn client address
+                if (clientAddress == null) {
+                    clientAddress = new InetSocketAddress(pkt.getAddress(), pkt.getPort());
+                    System.out.println("[Host] Client connected from " + clientAddress);
+                }
+                System.out.println("[Host] Received: " + msg);
+                if (listener != null) listener.onClientMessage(msg);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
-    // Set the listener to notify when messages are received
+    private void broadcastLoop() {
+        try {
+            while (running) {
+                if (clientAddress != null) {
+                    String payload = "HostBroadcast: " + System.currentTimeMillis();
+                    sendToClient(payload);
+                }
+                Thread.sleep(100); // 10Hz
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    public void sendToClient(String message) {
+        if (socket == null || clientAddress == null) return;
+        byte[] data = message.getBytes(StandardCharsets.UTF_8);
+        DatagramPacket pkt = new DatagramPacket(
+            data, data.length,
+            clientAddress.getAddress(), clientAddress.getPort()
+        );
+        try {
+            socket.send(pkt);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public void setConnectionListener(ConnectionListener listener) {
         this.listener = listener;
     }
 
-    // Interface for connection listener
     public interface ConnectionListener {
         void onClientMessage(String message);
     }

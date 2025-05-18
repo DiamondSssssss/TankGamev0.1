@@ -10,12 +10,6 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.mygdx.tankgame.TankGame;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.Socket;
-
 public class MultiplayerConnectionScreen extends ScreenAdapter {
     private final TankGame game;
     private BitmapFont font;
@@ -26,11 +20,13 @@ public class MultiplayerConnectionScreen extends ScreenAdapter {
     private final ShapeRenderer shapeRenderer;
     private final float buttonX = 100f;
     private final float buttonY = 200f;
-    private final float buttonWidth = 200f;
+    private final float buttonWidth = 250f;
     private final float buttonHeight = 100f;
+
     private String ipAddress;
 
-    private TankHost tankHost;  // Declare the TankHost to start the server
+    private TankHost tankHost;
+    private TankClient tankClient;
 
     public MultiplayerConnectionScreen(TankGame game, boolean isHost, String ipAddress) {
         this.game = game;
@@ -38,53 +34,37 @@ public class MultiplayerConnectionScreen extends ScreenAdapter {
         this.ipAddress = ipAddress;
         this.font = new BitmapFont();
         this.shapeRenderer = new ShapeRenderer();
-
-        if (isHost) {
-            tankHost = new TankHost(5555);
-            tankHost.setConnectionListener((String message) -> {
-                // This runs in the server thread, so make sure we safely update LibGDX state
-                Gdx.app.postRunnable(() -> {
-                    isClientConnected = true;
-                    System.out.println("Received message: " + message); // You can log or process the message as needed
-                });
-            });
-        }
     }
 
     @Override
     public void show() {
         if (isHost) {
-            // Host mode
-            new Thread(() -> {
-                tankHost.startServer();  // Start the server in a new thread
-            }).start();
-        } else {
-            // Client mode
-            new Thread(() -> {
-                try {
-                    Socket socket = new Socket(ipAddress, 5555);
-                    BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                    PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-
-                    // Read welcome message from server
-                    String message = in.readLine();
-                    System.out.println("Server: " + message);
-
-                    // Send a greeting message to server
-                    out.println("Hello from Client!");
-
-                    // Flag that client is connected
+            tankHost = new TankHost(5555);
+            tankHost.setConnectionListener((String message) -> {
+                Gdx.app.postRunnable(() -> {
                     isClientConnected = true;
-
-                    // You may want to keep the socket open or store it for gameplay
-                    // For now, just keep it connected in background
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }).start();
+                    System.out.println("[Host] Client message: " + message);
+                });
+            });
+            new Thread(tankHost::startServer).start();
+        } else {
+            try {
+                tankClient = new TankClient(ipAddress, 5555);
+                tankClient.setConnectionListener((String message) -> {
+                    Gdx.app.postRunnable(() -> {
+                        if ("StartGame".equals(message)) {
+                            game.setScreen(new MultiplayerScreen(game, false, ipAddress));
+                        } else {
+                            isClientConnected = true;
+                        }
+                    });
+                });
+                tankClient.startClient(); // Sends "ClientHello"
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
-
 
     @Override
     public void render(float delta) {
@@ -92,50 +72,43 @@ public class MultiplayerConnectionScreen extends ScreenAdapter {
         game.batch.begin();
 
         font.getData().setScale(2f);
-        font.draw(game.batch, "Host Room", 100, Gdx.graphics.getHeight() - 100);
+        font.draw(game.batch, isHost ? "Hosting Room" : "Joining Room", 100, Gdx.graphics.getHeight() - 100);
 
         font.getData().setScale(1.5f);
-
-        // Slot 1: Host
-        font.draw(game.batch, "Host (You)", 100, Gdx.graphics.getHeight() - 180);
-
-        // Slot 2: Client (empty or connected)
-        if (isClientConnected) {
-            font.draw(game.batch, "Client (Joined)", 100, Gdx.graphics.getHeight() - 220);
+        if (isHost) {
+            font.draw(game.batch, "You are the Host", 100, Gdx.graphics.getHeight() - 180);
+            font.draw(game.batch, isClientConnected ? "Client Connected!" : "Waiting for Client...", 100, Gdx.graphics.getHeight() - 220);
         } else {
-            font.draw(game.batch, "Client (Waiting...)", 100, Gdx.graphics.getHeight() - 220);
+            font.draw(game.batch, "You are the Client", 100, Gdx.graphics.getHeight() - 180);
+            font.draw(game.batch, isClientConnected ? "Connected to Host!" : "Connecting to Host...", 100, Gdx.graphics.getHeight() - 220);
         }
 
         game.batch.end();
 
-        // Draw "Start Game" button
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        shapeRenderer.setColor(Color.BLUE);
-        shapeRenderer.rect(buttonX, buttonY, buttonWidth, buttonHeight);
-        shapeRenderer.end();
-
-        // Draw the text on top of the button using GlyphLayout
-        GlyphLayout layout = new GlyphLayout();
-        layout.setText(font, "Start Game");
-
-        game.batch.begin();
-        font.getData().setScale(1.2f);
-        font.setColor(Color.WHITE);
-
-        // Calculate position to center the text
-        float textX = buttonX + (buttonWidth - layout.width) / 2;
-        float textY = buttonY + (buttonHeight + layout.height) / 2;
-
-        // Draw the text centered in the button
-        font.draw(game.batch, layout, textX, textY);
-        game.batch.end();
-
-        // Start Game logic
+        // Only host sees "Start Game" button
         if (isHost && isClientConnected) {
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+            shapeRenderer.setColor(Color.BLUE);
+            shapeRenderer.rect(buttonX, buttonY, buttonWidth, buttonHeight);
+            shapeRenderer.end();
+
+            GlyphLayout layout = new GlyphLayout();
+            layout.setText(font, "Start Game");
+
+            game.batch.begin();
+            font.getData().setScale(1.2f);
+            font.setColor(Color.WHITE);
+
+            float textX = buttonX + (buttonWidth - layout.width) / 2;
+            float textY = buttonY + (buttonHeight + layout.height) / 2;
+
+            font.draw(game.batch, layout, textX, textY);
+            game.batch.end();
+
             if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
-                // Start the game if both host and client are connected
                 gameStarted = true;
-                game.setScreen(new MultiplayerScreen(game, true, "localhost"));
+                tankHost.sendToClient("StartGame");
+                game.setScreen(new MultiplayerScreen(game, true, "localhost")); // Host always uses localhost
             }
         }
     }
@@ -143,5 +116,6 @@ public class MultiplayerConnectionScreen extends ScreenAdapter {
     @Override
     public void hide() {
         font.dispose();
+        shapeRenderer.dispose();
     }
 }
