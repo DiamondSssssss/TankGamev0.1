@@ -1,42 +1,21 @@
 package com.mygdx.tankgame;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.mygdx.tankgame.coop.CoopShotgunPlayerTankOne;
-import com.mygdx.tankgame.coop.CoopShotgunPlayerTankTwo;
-import com.mygdx.tankgame.coop.CoopSniperPlayerTankOne;
-import com.mygdx.tankgame.coop.CoopSniperPlayerTankTwo;
-import com.mygdx.tankgame.coop.PlayerOnePlayerTank;
-import com.mygdx.tankgame.coop.PlayerTwoPlayerTank;
-import com.mygdx.tankgame.levels.CoopLevelScreen;
-import com.mygdx.tankgame.levels.EndlessLevelScreen;
-import com.mygdx.tankgame.levels.Level1Screen;
-import com.mygdx.tankgame.online.MultiplayerLobbyScreen;
-import com.mygdx.tankgame.playertank.PlayerTank;
-import com.mygdx.tankgame.playertank.ShotgunPlayerTank;
-import com.mygdx.tankgame.playertank.SniperPlayerTank;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 
 public class MainMenuScreen implements Screen {
-    private TankGame game;
-    private SpriteBatch batch;
+    private final TankGame game;
+    private Stage stage;
     private Texture background;
-    private BitmapFont font;
-
-    private enum MenuState { MODE_SELECTION, TANK_SELECTION }
-    private enum GameMode { CLASSIC, COOP , ONLINE , ENDLESS }
-
-    private MenuState menuState = MenuState.MODE_SELECTION;
-    private GameMode selectedMode = GameMode.CLASSIC;
-
-    private String[] tankOptions = {"Standard Tank", "Sniper Tank", "Shotgun Tank"};
-    private int selectedTankIndexClassic = 0;
-    private int selectedTankIndexP1 = 0;
-    private int selectedTankIndexP2 = 0;
+    private Table table;
+    private Skin skin;
 
     public MainMenuScreen(TankGame game) {
         this.game = game;
@@ -44,148 +23,83 @@ public class MainMenuScreen implements Screen {
 
     @Override
     public void show() {
-        batch = new SpriteBatch();
-        background = new Texture("menu.jpg");
-        font = new BitmapFont();
+        stage = new Stage(new ScreenViewport());
+        Gdx.input.setInputProcessor(stage);
+
+        background = new Texture("menu.jpg"); // Image should be in assets/menu.jpg
+        skin = new Skin(Gdx.files.internal("uiskin.json")); // Your skin JSON file
+
+        table = new Table();
+        table.setFillParent(true);
+        table.center();
+
+        // Use default style for Label to avoid missing style error
+        Label title = new Label("TANK GAME", skin);
+        TextButton classicBtn = new TextButton("Classic Mode", skin);
+        TextButton coopBtn = new TextButton("Coop Mode", skin);
+        TextButton endlessBtn = new TextButton("Endless Mode", skin);
+        TextButton onlineBtn = new TextButton("Online Mode", skin);
+
+        table.add(title).padBottom(40).row();
+        table.add(classicBtn).size(250, 60).padBottom(20).row();
+        table.add(coopBtn).size(250, 60).padBottom(20).row();
+        table.add(endlessBtn).size(250, 60).padBottom(20).row();
+        table.add(onlineBtn).size(250, 60).padBottom(20).row();
+
+        stage.addActor(table);
+
+        classicBtn.addListener(new ClickListener() {
+            @Override public void clicked(InputEvent event, float x, float y) {
+                System.out.println("Switching to TankSelectionScreen with mode CLASSIC");
+                game.setScreen(new TankSelectionScreen(game, "CLASSIC"));
+            }
+        });
+
+        coopBtn.addListener(new ClickListener() {
+            @Override public void clicked(InputEvent event, float x, float y) {
+                System.out.println("Switching to TankSelectionScreen with mode COOP");
+                game.setScreen(new CoopTankSelectionScreen(game));
+            }
+        });
+
+        endlessBtn.addListener(new ClickListener() {
+            @Override public void clicked(InputEvent event, float x, float y) {
+                System.out.println("Switching to TankSelectionScreen with mode ENDLESS");
+                game.setScreen(new TankSelectionScreen(game, "ENDLESS"));
+            }
+    });
+
+        // You can add onlineBtn listener later if you want
     }
 
     @Override
     public void render(float delta) {
+        Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        if (menuState == MenuState.MODE_SELECTION) {
-            if (Gdx.input.isKeyJustPressed(Input.Keys.LEFT) || Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)) {
-                selectedMode = (selectedMode == GameMode.CLASSIC) ? GameMode.COOP :
-                    (selectedMode == GameMode.COOP) ? GameMode.ONLINE :
-                        (selectedMode == GameMode.ONLINE) ? GameMode.ENDLESS :
-                            GameMode.CLASSIC;
-            }
+        game.batch.begin();
+        game.batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        game.batch.end();
 
-            if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
-                if (selectedMode == GameMode.ONLINE) {
-                    game.setScreen(new MultiplayerLobbyScreen(game));
-                } else {
-                    menuState = MenuState.TANK_SELECTION;
-                }
-            }
-
-            batch.begin();
-            batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-            font.draw(batch, "Select Mode:", Gdx.graphics.getWidth() / 2 - 50, Gdx.graphics.getHeight() / 2 + 50);
-            String modeText = switch (selectedMode) {
-                case CLASSIC -> "Classic Mode";
-                case COOP -> "Coop Mode";
-                case ONLINE -> "Online Mode";
-                case ENDLESS -> "Endless Mode";
-            };
-            font.draw(batch, modeText, Gdx.graphics.getWidth() / 2 - 50, Gdx.graphics.getHeight() / 2);
-            font.draw(batch, "Use LEFT/RIGHT arrows to toggle mode.", Gdx.graphics.getWidth() / 2 - 150, Gdx.graphics.getHeight() / 2 - 30);
-            font.draw(batch, "Press ENTER to continue.", Gdx.graphics.getWidth() / 2 - 80, Gdx.graphics.getHeight() / 2 - 60);
-            batch.end();
-            return;
-        }
-
-        batch.begin();
-        batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-
-        if (selectedMode == GameMode.CLASSIC) {
-            font.draw(batch, "Classic Mode - Select Your Tank", Gdx.graphics.getWidth() / 2 - 100, Gdx.graphics.getHeight() / 2 + 50);
-            font.draw(batch, "Tank Options: " + tankOptions[selectedTankIndexClassic], Gdx.graphics.getWidth() / 2 - 100, Gdx.graphics.getHeight() / 2);
-            font.draw(batch, "Use LEFT/RIGHT to change selection.", Gdx.graphics.getWidth() / 2 - 130, Gdx.graphics.getHeight() / 2 - 30);
-            font.draw(batch, "Press ENTER to start.", Gdx.graphics.getWidth() / 2 - 80, Gdx.graphics.getHeight() / 2 - 60);
-
-            if (Gdx.input.isKeyJustPressed(Input.Keys.LEFT)) {
-                selectedTankIndexClassic = (selectedTankIndexClassic - 1 + tankOptions.length) % tankOptions.length;
-            }
-            if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)) {
-                selectedTankIndexClassic = (selectedTankIndexClassic + 1) % tankOptions.length;
-            }
-            if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
-                PlayerTank chosenPlayerTank = switch (selectedTankIndexClassic) {
-                    case 1 -> new SniperPlayerTank(100, 100);
-                    case 2 -> new ShotgunPlayerTank(100, 100);
-                    default -> new PlayerTank(100, 100);
-                };
-                game.setScreen(new Level1Screen(game, chosenPlayerTank));
-            }
-
-        } else if (selectedMode == GameMode.COOP) {
-            font.draw(batch, "Coop Mode - Select Tanks for Each Player", Gdx.graphics.getWidth() / 2 - 150, Gdx.graphics.getHeight() / 2 + 70);
-            font.draw(batch, "Player 1: " + tankOptions[selectedTankIndexP1], Gdx.graphics.getWidth() / 2 - 200, Gdx.graphics.getHeight() / 2 + 20);
-            font.draw(batch, "Player 2: " + tankOptions[selectedTankIndexP2], Gdx.graphics.getWidth() / 2 + 50, Gdx.graphics.getHeight() / 2 + 20);
-            font.draw(batch, "P1 use A/D; P2 use LEFT/RIGHT to change selection.", Gdx.graphics.getWidth() / 2 - 180, Gdx.graphics.getHeight() / 2 - 20);
-            font.draw(batch, "Press ENTER to start Coop mode.", Gdx.graphics.getWidth() / 2 - 100, Gdx.graphics.getHeight() / 2 - 60);
-
-            if (Gdx.input.isKeyJustPressed(Input.Keys.A)) {
-                selectedTankIndexP1 = (selectedTankIndexP1 - 1 + tankOptions.length) % tankOptions.length;
-            }
-            if (Gdx.input.isKeyJustPressed(Input.Keys.D)) {
-                selectedTankIndexP1 = (selectedTankIndexP1 + 1) % tankOptions.length;
-            }
-            if (Gdx.input.isKeyJustPressed(Input.Keys.LEFT)) {
-                selectedTankIndexP2 = (selectedTankIndexP2 - 1 + tankOptions.length) % tankOptions.length;
-            }
-            if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)) {
-                selectedTankIndexP2 = (selectedTankIndexP2 + 1) % tankOptions.length;
-            }
-
-            if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
-                PlayerTank playerOne = switch (selectedTankIndexP1) {
-                    case 1 -> new CoopSniperPlayerTankOne(100, 100);
-                    case 2 -> new CoopShotgunPlayerTankOne(100, 100);
-                    default -> new PlayerOnePlayerTank(100, 100);
-                };
-
-                PlayerTank playerTwo = switch (selectedTankIndexP2) {
-                    case 1 -> new CoopSniperPlayerTankTwo(100, 100);
-                    case 2 -> new CoopShotgunPlayerTankTwo(100, 100);
-                    default -> new PlayerTwoPlayerTank(100, 100);
-                };
-
-                game.setScreen(new CoopLevelScreen(game, playerOne, playerTwo));
-            }
-
-        } else if (selectedMode == GameMode.ENDLESS) {
-            font.draw(batch, "Endless Mode - Select Your Tank", Gdx.graphics.getWidth() / 2 - 100, Gdx.graphics.getHeight() / 2 + 50);
-            font.draw(batch, "Tank Options: " + tankOptions[selectedTankIndexClassic], Gdx.graphics.getWidth() / 2 - 100, Gdx.graphics.getHeight() / 2);
-            font.draw(batch, "Use LEFT/RIGHT to change selection.", Gdx.graphics.getWidth() / 2 - 130, Gdx.graphics.getHeight() / 2 - 30);
-            font.draw(batch, "Press ENTER to start Endless mode.", Gdx.graphics.getWidth() / 2 - 100, Gdx.graphics.getHeight() / 2 - 60);
-
-            if (Gdx.input.isKeyJustPressed(Input.Keys.LEFT)) {
-                selectedTankIndexClassic = (selectedTankIndexClassic - 1 + tankOptions.length) % tankOptions.length;
-            }
-            if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)) {
-                selectedTankIndexClassic = (selectedTankIndexClassic + 1) % tankOptions.length;
-            }
-            if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
-                PlayerTank chosenPlayerTank = switch (selectedTankIndexClassic) {
-                    case 1 -> new SniperPlayerTank(100, 100);
-                    case 2 -> new ShotgunPlayerTank(100, 100);
-                    default -> new PlayerTank(100, 100);
-                };
-                game.setScreen(new EndlessLevelScreen(game, chosenPlayerTank));
-            }
-        }
-
-        batch.end();
+        stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
+        stage.draw();
     }
 
     @Override
-    public void resize(int width, int height) {}
+    public void resize(int width, int height) {
+        stage.getViewport().update(width, height, true);
+    }
 
-    @Override
-    public void pause() {}
-
-    @Override
-    public void resume() {}
-
-    @Override
-    public void hide() {}
+    @Override public void pause() {}
+    @Override public void resume() {}
+    @Override public void hide() {
+        Gdx.input.setInputProcessor(null);
+    }
 
     @Override
     public void dispose() {
-        batch.dispose();
+        stage.dispose();
         background.dispose();
-        font.dispose();
+        skin.dispose();
     }
 }
