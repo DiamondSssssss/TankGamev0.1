@@ -17,6 +17,7 @@ public class ShotgunPlayerTank extends PlayerTank {
     private final float shieldDuration = 3f;
     private Texture shieldTexture;
     private Sprite shieldSprite;
+    private Texture shotgunTankTexture;
 
     // --- Shield cooldown fields ---
     protected float shieldCooldownTimer = 0f;
@@ -27,6 +28,11 @@ public class ShotgunPlayerTank extends PlayerTank {
 
     public ShotgunPlayerTank(float x, float y) {
         super(x, y);
+        Texture shotgunTankTexture = new Texture(Gdx.files.internal("shotgun_tank.png"));
+        Sprite shotgunTankSprite = new Sprite(shotgunTankTexture);
+        shotgunTankSprite.setPosition(x, y);
+        shotgunTankSprite.setOriginCenter();
+        setSprite(shotgunTankSprite);
         shieldTexture = new Texture(Gdx.files.internal("shield.png"));
         shieldSprite = new Sprite(shieldTexture);
         Sprite tankSprite = getSprite();
@@ -98,6 +104,7 @@ public class ShotgunPlayerTank extends PlayerTank {
     public void dispose() {
         super.dispose();
         shieldTexture.dispose();
+        shotgunTankTexture.dispose();
     }
 
     /**

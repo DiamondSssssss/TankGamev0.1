@@ -23,7 +23,7 @@ public class SniperPlayerTank extends PlayerTank {
     protected boolean isCharging = false;
     // Cache the normal movement speed.
     protected float normalSpeed;
-
+    protected Texture sniperTankTexture;
     // --- Wall Ability Cooldown Fields ---
     protected float wallCooldownTimer = 0f;
     protected final float wallCooldownDuration = 10f;
@@ -38,6 +38,11 @@ public class SniperPlayerTank extends PlayerTank {
 
     public SniperPlayerTank(float x, float y) {
         super(x, y);
+        Texture sniperTankTexture = new Texture(Gdx.files.internal("sniper_tank.png"));
+        Sprite sniperTankSprite = new Sprite(sniperTankTexture);
+        sniperTankSprite.setPosition(x, y);
+        sniperTankSprite.setOriginCenter();
+        setSprite(sniperTankSprite);
         // Assume the base tank’s normal speed is 200.
         normalSpeed = 200f;
         // Create a 1x1 white texture for drawing the charge indicator.
@@ -210,5 +215,6 @@ public class SniperPlayerTank extends PlayerTank {
     public void dispose() {
         super.dispose();
         chargeIndicatorTexture.dispose();
+        sniperTankTexture.dispose();
     }
 }

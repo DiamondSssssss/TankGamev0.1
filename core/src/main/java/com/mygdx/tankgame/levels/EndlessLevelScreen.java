@@ -7,8 +7,10 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.math.MathUtils;
+import com.mygdx.tankgame.MainMenuScreen;
 import com.mygdx.tankgame.TankGame;
 import com.mygdx.tankgame.buildstuff.Wall;
+import com.mygdx.tankgame.db.HighScoreDAO;
 import com.mygdx.tankgame.enemies.ChaserTank;
 import com.mygdx.tankgame.enemies.EnemyTank;
 import com.mygdx.tankgame.playertank.PlayerTank;
@@ -28,6 +30,8 @@ public class EndlessLevelScreen extends LevelScreen {
 
     private int score = 0;
     private BitmapFont font;
+    private int highestScore;
+    private BitmapFont highestScoreFont;
 
     public EndlessLevelScreen(TankGame game, PlayerTank playerTank) {
         super(game, playerTank);
@@ -35,6 +39,12 @@ public class EndlessLevelScreen extends LevelScreen {
         font = new BitmapFont();
         font.setColor(Color.WHITE);
         font.getData().setScale(2f);
+        highestScoreFont = new BitmapFont();
+        highestScoreFont.setColor(Color.YELLOW);
+        highestScoreFont.getData().setScale(1.5f);
+
+        highestScore = HighScoreDAO.getHighestScore();
+
     }
 
     @Override
@@ -88,13 +98,20 @@ public class EndlessLevelScreen extends LevelScreen {
         font.draw(game.batch, s, x + 2, y - 2);
         font.setColor(Color.WHITE);
         font.draw(game.batch, s, x, y);
+        String hs = "High Score: " + highestScore;
+        GlyphLayout hsLayout = new GlyphLayout(highestScoreFont, hs);
+        float hsX = x - 100; // move left by 100 pixels
+        float hsY = y - 30;
 
+        highestScoreFont.setColor(Color.BLACK);
+        highestScoreFont.draw(game.batch, hs, hsX + 2, hsY - 2);
+        highestScoreFont.setColor(Color.YELLOW);
+        highestScoreFont.draw(game.batch, hs, hsX, hsY);
         game.batch.end();
     }
 
     @Override
     protected void updateGameElements(float delta) {
-        // capture before/after for score
         int before = enemies.size();
         super.updateGameElements(delta);
         int killed = before - enemies.size();
@@ -103,7 +120,15 @@ public class EndlessLevelScreen extends LevelScreen {
             Gdx.app.log("DEBUG", "Killed " + killed + " → score=" + score);
         }
 
-        // spawn logic (unconditional, even if enemies.isEmpty())
+        // kiểm tra nếu người chơi chết
+        if (playerTank.isDestroyed()) {
+            saveScoreToDatabase();
+            game.setScreen(new MainMenuScreen(game)); // hoặc MainMenuScreen
+            dispose(); // giải phóng tài nguyên
+            return;
+        }
+
+        // spawn logic
         if (!isWarningActive) {
             spawnTimer += delta;
             if (spawnTimer >= spawnInterval) {
@@ -122,6 +147,7 @@ public class EndlessLevelScreen extends LevelScreen {
         }
     }
 
+
     private void activateWarning() {
         isWarningActive = true;
         warningTimer = 0f;
@@ -138,11 +164,15 @@ public class EndlessLevelScreen extends LevelScreen {
     protected void goToUpgradeScreen() {
         // never used in endless
     }
+    public void saveScoreToDatabase() {
+        HighScoreDAO.insertScore("Player", score);
+    }
 
     @Override
     public void dispose() {
         super.dispose();
         warningTexture.dispose();
         font.dispose();
+        highestScoreFont.dispose();
     }
 }

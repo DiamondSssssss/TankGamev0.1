@@ -18,7 +18,7 @@ import java.util.List;
 
 public class PlayerTank{
     private Texture tankTexture;
-    private Sprite sprite;
+    protected Sprite sprite;
     private Vector2 position;
     private float rotation;
     private float speed = 200f; // Normal speed
@@ -218,7 +218,9 @@ public class PlayerTank{
             explosion.draw(batch);
         }
     }
-
+    public void setSprite(Sprite sprite) {
+        this.sprite = sprite;
+    }
     public Vector2 getPosition() {
         return position;
     }
@@ -293,6 +295,28 @@ public class PlayerTank{
         sprite.setPosition(position.x, position.y);
     }
 
+    public void reviveAt(float x, float y) {
+        // Reset health
+        currentHealth = maxHealth;
+        // Reset destroyed flag
+        isDestroyed = false;
+
+        // Reset invincibility status so player is not invincible after revive,
+        // or optionally set invincible for a brief time after revive
+        isInvincible = true;
+        invincibilityTimer = invincibilityTime;
+        blinkTimer = 0;
+        drawSprite = true;
+
+        // Reset dash charges if you want (optional)
+        dashCharges = maxDashCharges;
+
+        // Set new position
+        position.set(x, y);
+        sprite.setPosition(x, y);
+
+        System.out.println("Player revived at: " + x + ", " + y);
+    }
 
     public void setWalls(List<Wall> sharedWalls) {
     }

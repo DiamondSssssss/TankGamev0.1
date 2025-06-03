@@ -26,7 +26,7 @@ public class Bullet {
     public Bullet(float x, float y, float angle, float damage, boolean isEnemyBullet) {
         this.isEnemyBullet = isEnemyBullet;
         this.damage = damage;
-        this.texture = new Texture(Gdx.files.internal(isEnemyBullet ? "enemy_bullet.png" : "bullet.jpg"));
+        this.texture = new Texture(Gdx.files.internal(isEnemyBullet ? "enemy_bullet.jpg" : "bullet.jpg"));
         this.sprite = new Sprite(texture);
         this.position = new Vector2(x, y);
         this.angle = angle;

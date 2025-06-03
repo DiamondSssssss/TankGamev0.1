@@ -93,11 +93,16 @@ public class TankSelectionScreen implements Screen {
 
             if (selectedTank != null) {
                 screenChanged = true;
-                game.setScreen(new Level1Screen(game, selectedTank));
+                if ("ENDLESS".equalsIgnoreCase(gameMode)) {
+                    game.setScreen(new com.mygdx.tankgame.levels.EndlessLevelScreen(game, selectedTank));
+                } else {
+                    game.setScreen(new Level1Screen(game, selectedTank));
+                }
                 dispose();
             }
         }
     }
+
 
     private Vector2 getMouse() {
         return new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());

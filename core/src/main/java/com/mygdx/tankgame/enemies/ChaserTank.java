@@ -2,6 +2,7 @@ package com.mygdx.tankgame.enemies;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
 import com.mygdx.tankgame.bullets.Bullet;
 import com.mygdx.tankgame.playertank.PlayerTank;
@@ -17,9 +18,15 @@ public class ChaserTank extends EnemyTank {
         super(x, y, playerOne, bullets); // Default target still required
         this.playerOne = playerOne;
         this.playerTwo = playerTwo;
-        this.texture = new Texture(Gdx.files.internal("enemy_tank.png"));
+
+        // Set the chaser-specific texture
+        this.texture = new Texture(Gdx.files.internal("chaser_tank.png"));
+        this.sprite = new Sprite(this.texture);  // <- Recreate sprite with new texture
+        this.sprite.setPosition(position.x, position.y);
+
         this.speed = 120f;
     }
+
 
     public ChaserTank(float x, float y, PlayerTank player, List<Bullet> bullets) {
         this(x, y, player, null, bullets);
@@ -90,4 +97,9 @@ public class ChaserTank extends EnemyTank {
     public void shoot() {
         // ChaserTank does not shoot
     }
+    @Override
+    public void dispose() {
+        if (texture != null) texture.dispose();
+    }
+
 }
