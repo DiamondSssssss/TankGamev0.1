@@ -60,7 +60,7 @@ public class GameScreen implements Screen {
     }
 
     private void updateGameElements(float delta) {
-        playerTank.update(delta, bullets, enemies); // ✅ Pass list of enemies
+        //playerTank.update(delta, bullets, enemies, walls); // ✅ Pass list of enemies
 
         bullets.removeIf(bullet -> {
             bullet.update(delta);

@@ -2,11 +2,9 @@ package com.mygdx.tankgame.levels;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
-import com.badlogic.gdx.graphics.Texture;
-import com.mygdx.tankgame.buildstuff.Wall;
+import com.mygdx.tankgame.buildstuff.Wall2; // ✅ Changed import from Wall to Wall2
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,10 +12,9 @@ import java.util.List;
 public class LevelMapLoader {
     public static class MapData {
         public String background;
-        public List<Wall> walls = new ArrayList<>();
+        public List<Wall2> walls = new ArrayList<>(); // ✅ Changed to Wall2
         public float[] bossPosition = null;
-
-        public List<float[]> enemyPositions = new ArrayList<>(); // [x, y]
+        public List<float[]> enemyPositions = new ArrayList<>();
     }
 
     public static MapData load(String mapPath) {
@@ -29,7 +26,7 @@ public class LevelMapLoader {
 
         JsonValue wallArray = root.get("walls");
         for (JsonValue wall : wallArray) {
-            Wall w = new Wall(
+            Wall2 w = new Wall2( // ✅ Changed to Wall2
                 wall.getFloat("x"),
                 wall.getFloat("y"),
                 wall.getFloat("width"),
@@ -40,7 +37,7 @@ public class LevelMapLoader {
 
         JsonValue obstacleArray = root.get("obstacles");
         for (JsonValue obs : obstacleArray) {
-            Wall w = new Wall(
+            Wall2 w = new Wall2( // ✅ Changed to Wall2
                 obs.getFloat("x"),
                 obs.getFloat("y"),
                 obs.getFloat("width"),
@@ -48,6 +45,7 @@ public class LevelMapLoader {
             );
             data.walls.add(w);
         }
+
         JsonValue enemyArray = root.get("enemies");
         if (enemyArray != null) {
             for (JsonValue enemy : enemyArray) {
@@ -58,7 +56,7 @@ public class LevelMapLoader {
                 data.enemyPositions.add(pos);
             }
         }
-        // Optional boss spawn position
+
         JsonValue boss = root.get("boss");
         if (boss != null) {
             data.bossPosition = new float[] {

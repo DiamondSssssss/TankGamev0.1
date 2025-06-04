@@ -3,7 +3,9 @@ package com.mygdx.tankgame.enemies;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.mygdx.tankgame.buildstuff.Wall2;
 import com.mygdx.tankgame.bullets.Bullet;
 import com.mygdx.tankgame.playertank.PlayerTank;
 
@@ -19,21 +21,18 @@ public class ChaserTank extends EnemyTank {
         this.playerOne = playerOne;
         this.playerTwo = playerTwo;
 
-        // Set the chaser-specific texture
         this.texture = new Texture(Gdx.files.internal("chaser_tank.png"));
-        this.sprite = new Sprite(this.texture);  // <- Recreate sprite with new texture
+        this.sprite = new Sprite(this.texture);
         this.sprite.setPosition(position.x, position.y);
 
         this.speed = 120f;
     }
 
-
     public ChaserTank(float x, float y, PlayerTank player, List<Bullet> bullets) {
         this(x, y, player, null, bullets);
     }
 
-    @Override
-    public void update(float delta) {
+    public void update(float delta, List<Wall2> walls) {
         if (isDestroyed()) return;
 
         if (isExploding()) {
@@ -42,7 +41,7 @@ public class ChaserTank extends EnemyTank {
             return;
         }
 
-        chasePlayer(delta);
+        chasePlayer(delta, walls);
         checkPlayerCollision();
         super.update(delta);
     }
@@ -51,16 +50,28 @@ public class ChaserTank extends EnemyTank {
         return isExploding;
     }
 
-    private void chasePlayer(float delta) {
+    private void chasePlayer(float delta, List<Wall2> walls) {
         PlayerTank target = chooseAliveTarget();
-
-        if (target == null) return; // No valid targets
+        if (target == null) return;
 
         Vector2 direction = target.getPosition().cpy().sub(position).nor();
-        position.add(direction.scl(speed * delta));
+        Vector2 newPosition = position.cpy().add(direction.scl(speed * delta));
 
-        sprite.setPosition(position.x, position.y);
-        sprite.setRotation(direction.angleDeg());
+        Rectangle futureRect = new Rectangle(newPosition.x, newPosition.y, sprite.getWidth(), sprite.getHeight());
+        boolean collides = false;
+
+        for (Wall2 wall : walls) {
+            if (wall.getBoundingRectangle().overlaps(futureRect)) {
+                collides = true;
+                break;
+            }
+        }
+
+        if (!collides) {
+            position.set(newPosition);
+            sprite.setPosition(position.x, position.y);
+            sprite.setRotation(direction.angleDeg());
+        }
     }
 
     private PlayerTank chooseAliveTarget() {
@@ -76,7 +87,7 @@ public class ChaserTank extends EnemyTank {
         } else if (p2Alive) {
             return playerTwo;
         }
-        return null; // both are dead
+        return null;
     }
 
     public void checkPlayerCollision() {
@@ -97,9 +108,9 @@ public class ChaserTank extends EnemyTank {
     public void shoot() {
         // ChaserTank does not shoot
     }
+
     @Override
     public void dispose() {
         if (texture != null) texture.dispose();
     }
-
 }

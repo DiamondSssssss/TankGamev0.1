@@ -3,6 +3,7 @@ package com.mygdx.tankgame.coop;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector2;
+import com.mygdx.tankgame.buildstuff.Wall2;
 import com.mygdx.tankgame.bullets.Bullet;
 import com.mygdx.tankgame.enemies.EnemyTank;
 import com.mygdx.tankgame.playertank.PlayerTank;
@@ -17,7 +18,7 @@ public class PlayerTwoPlayerTank extends PlayerTank {
     }
 
     @Override
-    public void update(float deltaTime, List<Bullet> bullets, List<EnemyTank> enemyTanks) {
+    public void update(float deltaTime, List<Bullet> bullets, List<EnemyTank> enemyTanks,List<Wall2> walls) {
         float moveX = 0, moveY = 0;
         // Movement keys: Arrow keys.
         if (Gdx.input.isKeyPressed(Input.Keys.UP))    moveY += 1;

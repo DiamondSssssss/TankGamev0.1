@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector2;
 import com.mygdx.tankgame.buildstuff.Wall;
+import com.mygdx.tankgame.buildstuff.Wall2;
 import com.mygdx.tankgame.bullets.Bullet;
 import com.mygdx.tankgame.enemies.EnemyTank;
 import com.mygdx.tankgame.levels.LevelScreen;
@@ -20,7 +21,7 @@ public class CoopSniperPlayerTankOne extends SniperPlayerTank {
     }
 
     @Override
-    public void update(float deltaTime, List<Bullet> bullets, List<EnemyTank> enemyTanks) {
+    public void update(float deltaTime, List<Bullet> bullets, List<EnemyTank> enemyTanks,List<Wall2> walls) {
         // Process movement input using WASD.
         float moveX = 0, moveY = 0;
         if (Gdx.input.isKeyPressed(Input.Keys.W)) moveY += 1;
@@ -88,7 +89,7 @@ public class CoopSniperPlayerTankOne extends SniperPlayerTank {
         float wallHeight = 20f;
 
         // Create the wall with a lifetime of 3 seconds.
-        Wall wall = new Wall(wallX - wallWidth / 2, wallY - wallHeight / 2, wallWidth, wallHeight, 3f);
+        Wall2 wall = new Wall2(wallX - wallWidth / 2, wallY - wallHeight / 2, wallWidth, wallHeight);
 
         // Rotate the wall 90 degrees relative to the tank's facing direction.
         wall.setRotation(getRotation() + 90);

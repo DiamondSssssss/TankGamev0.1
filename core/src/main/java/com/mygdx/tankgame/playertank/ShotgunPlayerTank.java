@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.mygdx.tankgame.buildstuff.Wall2;
 import com.mygdx.tankgame.bullets.Bullet;
 import com.mygdx.tankgame.enemies.EnemyTank;
 import java.util.List;
@@ -41,7 +42,7 @@ public class ShotgunPlayerTank extends PlayerTank {
     }
 
     @Override
-    public void update(float deltaTime, List<Bullet> bullets, List<EnemyTank> enemyTanks) {
+    public void update(float deltaTime, List<Bullet> bullets, List<EnemyTank> enemyTanks, List<Wall2> walls) {
         if (shieldCooldownTimer > 0) {
             shieldCooldownTimer -= deltaTime;
         }
@@ -55,7 +56,7 @@ public class ShotgunPlayerTank extends PlayerTank {
                 shieldActive = false;
             }
         }
-        super.update(deltaTime, bullets, enemyTanks);
+        super.update(deltaTime, bullets, enemyTanks, walls);
     }
 
     @Override

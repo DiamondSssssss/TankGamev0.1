@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.mygdx.tankgame.*;
 import com.mygdx.tankgame.buildstuff.ReviveCircle;
 import com.mygdx.tankgame.buildstuff.Wall;
+import com.mygdx.tankgame.buildstuff.Wall2;
 import com.mygdx.tankgame.bullets.Bullet;
 import com.mygdx.tankgame.enemies.BossTank;
 import com.mygdx.tankgame.enemies.ChaserTank;
@@ -62,9 +63,9 @@ public class CoopLevelScreen extends LevelScreen {
 
         // Update players only if alive
         if (!playerTank.isDestroyed())
-            playerTank.update(delta, bullets, enemies);
+            playerTank.update(delta, bullets, enemies, walls);
         if (!playerTwo.isDestroyed())
-            playerTwo.update(delta, bullets, enemies);
+            playerTwo.update(delta, bullets, enemies, walls);
 
         // Update enemies
         for (Iterator<EnemyTank> enemyIterator = enemies.iterator(); enemyIterator.hasNext();) {
@@ -150,7 +151,7 @@ public class CoopLevelScreen extends LevelScreen {
         renderGameElements();
 
         // Draw walls
-        for (Wall wall : walls) {
+        for (Wall2 wall : walls) {
             wall.draw(game.batch);
         }
 

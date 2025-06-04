@@ -6,7 +6,9 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.mygdx.tankgame.buildstuff.Wall;
+import com.mygdx.tankgame.buildstuff.Wall2;
 import com.mygdx.tankgame.levels.LevelScreen;
 import com.mygdx.tankgame.bullets.Bullet;
 import com.mygdx.tankgame.Explosion;
@@ -32,7 +34,10 @@ public class PlayerTank{
     private int maxHealth = 3;
     private int currentHealth = maxHealth;
     private boolean isDestroyed = false;
-
+    private com.badlogic.gdx.graphics.Camera camera;
+    public void setCamera(com.badlogic.gdx.graphics.Camera camera) {
+        this.camera = camera;
+    }
     private List<Explosion> explosions;
 
     // --- New fields for invincibility and blinking ---
@@ -56,66 +61,103 @@ public class PlayerTank{
         dashCharges = maxDashCharges;
     }
 
-    public void update(float deltaTime, List<Bullet> bullets, List<EnemyTank> enemyTanks) {
+    public void update(float deltaTime, List<Bullet> bullets, List<EnemyTank> enemyTanks, List<Wall2> walls) {
         if (isDestroyed) return;
 
-        // --- Update invincibility and blink timers if invincible ---
+        // === 1. Compute mouse position in world coordinates ===
+        Vector2 mouseWorld = new Vector2(Gdx.input.getX(), Gdx.input.getY());
+        if (camera != null) {
+            // camera.update() should already have been called in LevelScreen.render()
+            Vector3 unprojected = camera.unproject(new Vector3(mouseWorld.x, mouseWorld.y, 0));
+            mouseWorld.set(unprojected.x, unprojected.y);
+        }
+
+        // === 2. Compute the tank's center in world coordinates ===
+        // Make sure sprite.setOriginCenter() was invoked once in your constructor!
+        float centerX = position.x + sprite.getOriginX();
+        float centerY = position.y + sprite.getOriginY();
+
+        // === 3. Calculate rotation so the tank faces the mouse ===
+        rotation = (float) Math.toDegrees(
+            Math.atan2(mouseWorld.y - centerY, mouseWorld.x - centerX)
+        );
+        sprite.setRotation(rotation);
+
+        // === 4. Invincibility & blinking logic ===
         if (isInvincible) {
             invincibilityTimer -= deltaTime;
             blinkTimer += deltaTime;
             if (blinkTimer >= blinkInterval) {
-                blinkTimer = 0;
+                blinkTimer = 0f;
                 drawSprite = !drawSprite;
             }
-            if (invincibilityTimer <= 0) {
+            if (invincibilityTimer <= 0f) {
                 isInvincible = false;
-                drawSprite = true; // Ensure sprite is visible when invincibility ends
+                drawSprite = true; // ensure visible after invincibility ends
             }
         }
 
-        // Handle dash cooldown
-        if (dashCooldownRemaining > 0) dashCooldownRemaining -= deltaTime;
+        // === 5. Dash cooldown logic ===
+        if (dashCooldownRemaining > 0f) {
+            dashCooldownRemaining -= deltaTime;
+            if (dashCooldownRemaining < 0f) dashCooldownRemaining = 0f;
+        }
 
-        float moveX = 0, moveY = 0;
-        if (Gdx.input.isKeyPressed(Input.Keys.W)) moveY += 1;
-        if (Gdx.input.isKeyPressed(Input.Keys.S)) moveY -= 1;
-        if (Gdx.input.isKeyPressed(Input.Keys.A)) moveX -= 1;
-        if (Gdx.input.isKeyPressed(Input.Keys.D)) moveX += 1;
+        // === 6. Read movement input ===
+        float moveX = 0f, moveY = 0f;
+        if (Gdx.input.isKeyPressed(Input.Keys.W)) moveY += 1f;
+        if (Gdx.input.isKeyPressed(Input.Keys.S)) moveY -= 1f;
+        if (Gdx.input.isKeyPressed(Input.Keys.A)) moveX -= 1f;
+        if (Gdx.input.isKeyPressed(Input.Keys.D)) moveX += 1f;
 
-        // Handle dashing
+        // === 7. Attempt dash if SPACE is pressed ===
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
             attemptDash();
         }
 
-        float currentSpeed = (dashTimeRemaining > 0) ? dashSpeed : speed;
-        if (moveX != 0 || moveY != 0) {
+        // === 8. Move tank based on dash or normal speed ===
+        float currentSpeed = (dashTimeRemaining > 0f) ? dashSpeed : speed;
+        if (moveX != 0f || moveY != 0f) {
             Vector2 direction = new Vector2(moveX, moveY).nor();
-            position.add(direction.scl(currentSpeed * deltaTime));
-        }
+            Vector2 newPosition = new Vector2(position).add(direction.scl(currentSpeed * deltaTime));
 
-        // Dash duration logic
-        if (dashTimeRemaining > 0) {
-            dashTimeRemaining -= deltaTime;
-            if (dashTimeRemaining <= 0) {
-                dashTimeRemaining = 0;
+            // Only move if no collision with walls
+            if (!isCollidingWithWalls(newPosition, walls)) {
+                position.set(newPosition);
             }
         }
 
-        // Keep tank within screen boundaries.
-        position.x = Math.max(0, Math.min(Gdx.graphics.getWidth() - sprite.getWidth(), position.x));
-        position.y = Math.max(0, Math.min(Gdx.graphics.getHeight() - sprite.getHeight(), position.y));
+        // === 9. Update dash duration ===
+        if (dashTimeRemaining > 0f) {
+            dashTimeRemaining -= deltaTime;
+            if (dashTimeRemaining <= 0f) dashTimeRemaining = 0f;
+        }
+
+        // === 10. Clamp position to viewport’s logical (virtual) size ===
+        // Use camera.viewportWidth / viewportHeight instead of Gdx.graphics.getWidth()
+        float worldMaxX = camera.viewportWidth - sprite.getWidth();
+        float worldMaxY = camera.viewportHeight - sprite.getHeight();
+        position.x = Math.max(0f, Math.min(worldMaxX, position.x));
+        position.y = Math.max(0f, Math.min(worldMaxY, position.y));
+
         sprite.setPosition(position.x, position.y);
 
-        float mouseX = Gdx.input.getX();
-        float mouseY = Gdx.graphics.getHeight() - Gdx.input.getY();
-        rotation = (float) Math.toDegrees(Math.atan2(
-            mouseY - (position.y + sprite.getHeight() / 2),
-            mouseX - (position.x + sprite.getWidth() / 2)
-        ));
-        sprite.setRotation(rotation);
-
+        // === 11. Check collisions ===
         checkBulletCollision(bullets, explosions);
         checkTankCollisions(enemyTanks);
+    }
+
+
+
+    protected boolean isCollidingWithWalls(Vector2 newPosition, List<Wall2> walls) {
+        Rectangle futureRect = new Rectangle(newPosition.x, newPosition.y, sprite.getWidth(), sprite.getHeight());
+
+        for (Wall2 wall : walls) {
+            if (wall.getBoundingRectangle().overlaps(futureRect)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void checkBulletCollision(List<Bullet> enemyBullets, List<Explosion> explosions) {

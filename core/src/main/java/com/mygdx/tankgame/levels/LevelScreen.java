@@ -3,14 +3,14 @@ package com.mygdx.tankgame.levels;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.*;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 import com.mygdx.tankgame.Explosion;
 import com.mygdx.tankgame.GameOverScreen;
 import com.mygdx.tankgame.TankGame;
 import com.mygdx.tankgame.buildstuff.Wall;
+import com.mygdx.tankgame.buildstuff.Wall2;
 import com.mygdx.tankgame.bullets.Bullet;
 import com.mygdx.tankgame.enemies.BossTank;
 import com.mygdx.tankgame.enemies.ChaserTank;
@@ -29,9 +29,15 @@ public abstract class LevelScreen implements Screen {
     protected final List<EnemyTank> enemies;
     protected final List<Explosion> explosions;
     protected final List<EnemyTank> pendingEnemies;
-    protected static List<Wall> walls = new ArrayList<>();
+    protected static List<Wall2> walls = new ArrayList<>();
     public static List<Explosion> globalExplosions = new ArrayList<>();
-    // Heart texture for displaying health
+
+    // Camera & viewport for proper scaling & fullscreen support
+    protected OrthographicCamera camera;
+    protected Viewport viewport;
+    protected final int VIRTUAL_WIDTH = 1280;  // your game's logical width
+    protected final int VIRTUAL_HEIGHT = 720;  // your game's logical height
+
     protected Texture heartTexture;
     protected final int heartWidth = 32;
     protected final int heartHeight = 32;
@@ -39,7 +45,6 @@ public abstract class LevelScreen implements Screen {
     protected final int heartMarginY = 10;
     protected Texture bossBarTexture;
 
-    // Ability icon textures
     private Texture abilityTextureSniper;
     private Texture abilityTextureShotgun;
     protected Texture backgroundTexture;
@@ -52,6 +57,11 @@ public abstract class LevelScreen implements Screen {
         enemies = new ArrayList<>();
         pendingEnemies = new ArrayList<>();
 
+        // Initialize camera & viewport
+        camera = new OrthographicCamera();
+        viewport = new FitViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, camera);
+        viewport.apply();
+        playerTank.setCamera(camera);
         heartTexture = new Texture(Gdx.files.internal("heart.jpg"));
         Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
         pixmap.setColor(Color.WHITE);
@@ -64,42 +74,13 @@ public abstract class LevelScreen implements Screen {
 
         setupLevel();
     }
-    protected abstract void setupLevel();
-    public static void addWall(Wall wall) {
-        walls.add(wall);
-    }
 
-    // Update walls: remove expired ones.
-    protected void updateWalls(float delta) {
-        Iterator<Wall> iter = walls.iterator();
-        while (iter.hasNext()) {
-            Wall wall = iter.next();
-            wall.update(delta);
-            if (wall.isExpired()) {
-                wall.dispose();
-                iter.remove();
-            }
-        }
-    }
-
-    // Check for bullet-wall collisions.
-    protected void checkBulletWallCollisions() {
-        Iterator<Bullet> bulletIterator = bullets.iterator();
-        while (bulletIterator.hasNext()) {
-            Bullet bullet = bulletIterator.next();
-            for (Wall wall : walls) {
-                if (bullet.getBoundingRectangle().overlaps(wall.getBoundingRectangle())) {
-                    bulletIterator.remove();
-                    break;
-                }
-            }
-        }
-    }
-
-    public void renderWalls() {
-        for (Wall wall : walls) {
-            wall.draw(game.batch);
-        }
+    @Override
+    public void resize(int width, int height) {
+        // Update viewport & camera when window size changes (fullscreen or window resize)
+        viewport.update(width, height, true);
+        camera.position.set(camera.viewportWidth / 2f, camera.viewportHeight / 2f, 0);
+        camera.update();
     }
 
     @Override
@@ -108,6 +89,7 @@ public abstract class LevelScreen implements Screen {
 
         handleInput();
         updateGameElements(delta);
+
         if (playerTank.isDestroyed()) {
             game.setScreen(new GameOverScreen(game));
             return;
@@ -117,26 +99,37 @@ public abstract class LevelScreen implements Screen {
             goToUpgradeScreen();
             return;
         }
+
+        // IMPORTANT: Update camera & set projection matrix before drawing
+        camera.update();
+        game.batch.setProjectionMatrix(camera.combined);
+
         game.batch.begin();
+
         globalExplosions.removeIf(explosion -> {
             explosion.update(delta);
             return explosion.isFinished();
         });
-        game.batch.draw(backgroundTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
+        // Draw background stretching to viewport size (scaled coordinates)
+        game.batch.draw(backgroundTexture, 0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
+
         renderGameElements();
         renderWalls();
+
         for (Explosion explosion : globalExplosions) {
             explosion.render(game.batch);
         }
-        // Draw boss health bar if exists.
+
+        // Boss health bar and other UI elements should be drawn using scaled coordinates
         for (EnemyTank enemy : enemies) {
             if (enemy instanceof BossTank) {
                 BossTank boss = (BossTank) enemy;
                 float healthPercentage = boss.getBossHealth() / (float) boss.getMaxBossHealth();
-                float barWidth = Gdx.graphics.getWidth() * 0.6f;
+                float barWidth = VIRTUAL_WIDTH * 0.6f;
                 float barHeight = 30f;
-                float barX = (Gdx.graphics.getWidth() - barWidth) / 2;
-                float barY = (Gdx.graphics.getHeight() / 2f) - 100f;
+                float barX = (VIRTUAL_WIDTH - barWidth) / 2;
+                float barY = (VIRTUAL_HEIGHT / 2f) - 100f;
                 game.batch.setColor(Color.RED);
                 game.batch.draw(bossBarTexture, barX, barY, barWidth, barHeight);
                 game.batch.setColor(Color.GREEN);
@@ -146,17 +139,17 @@ public abstract class LevelScreen implements Screen {
             }
         }
 
-        // Draw health hearts.
+        // Draw health hearts
         int currentHealth = playerTank.getCurrentHealth();
         for (int i = 0; i < currentHealth; i++) {
             game.batch.draw(heartTexture,
                 heartMarginX + i * (heartWidth + 5),
-                Gdx.graphics.getHeight() - heartHeight - heartMarginY,
+                VIRTUAL_HEIGHT - heartHeight - heartMarginY,
                 heartWidth,
                 heartHeight);
         }
 
-        // Draw ability icon with cooldown overlay.
+        // Draw ability icon with cooldown overlay
         Texture abilityTexture = null;
         float abilityCooldownPercentage = 0f;
         if (playerTank instanceof SniperPlayerTank) {
@@ -170,7 +163,7 @@ public abstract class LevelScreen implements Screen {
             float iconWidth = 64;
             float iconHeight = 64;
             float margin = 20;
-            float iconX = Gdx.graphics.getWidth() - iconWidth - margin;
+            float iconX = VIRTUAL_WIDTH - iconWidth - margin;
             float iconY = margin;
             game.batch.draw(abilityTexture, iconX, iconY, iconWidth, iconHeight);
             float overlayHeight = iconHeight * abilityCooldownPercentage;
@@ -182,12 +175,42 @@ public abstract class LevelScreen implements Screen {
         game.batch.end();
     }
 
+
     public void handleInput() {
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
             playerTank.shoot(bullets);
         }
     }
+    public void renderWalls() {
+        for (Wall2 wall : walls) {
+            wall.draw(game.batch);
+        }
+    }
+    protected abstract void setupLevel();
+    public static void addWall(Wall2 wall) {
+        walls.add(wall);
+    }
 
+    // Update walls: remove expired ones.
+    protected void updateWalls(float delta) {
+        for (Wall2 wall : walls) {
+            wall.update(delta);
+        }
+    }
+
+    // Check for bullet-wall collisions.
+    protected void checkBulletWallCollisions() {
+        Iterator<Bullet> bulletIterator = bullets.iterator();
+        while (bulletIterator.hasNext()) {
+            Bullet bullet = bulletIterator.next();
+            for (Wall2 wall : walls) {
+                if (bullet.getBoundingRectangle().overlaps(wall.getBoundingRectangle())) {
+                    bulletIterator.remove();
+                    break;
+                }
+            }
+        }
+    }
     void updateGameElements(float delta) {
         for (Bullet bullet : bullets) {
             bullet.update(delta);
@@ -197,11 +220,19 @@ public abstract class LevelScreen implements Screen {
         // Check bullet collisions with walls.
         checkBulletWallCollisions();
 
-        playerTank.update(delta, bullets, enemies);
+        playerTank.update(delta, bullets, enemies, walls);
 
         for (Iterator<EnemyTank> enemyIterator = enemies.iterator(); enemyIterator.hasNext();) {
             EnemyTank enemy = enemyIterator.next();
-            enemy.update(delta);
+
+            // If this is a ChaserTank, call the new signature:
+            if (enemy instanceof ChaserTank) {
+                ((ChaserTank)enemy).update(delta, walls);
+            } else {
+                // For other EnemyTank subclasses that still use update(delta)
+                enemy.update(delta);
+            }
+
             enemy.handleBulletCollision(bullets, explosions);
             if (enemy.isDestroyed()) {
                 enemy.dispose();
@@ -252,8 +283,6 @@ public abstract class LevelScreen implements Screen {
 
     protected abstract void goToUpgradeScreen();
 
-    @Override
-    public void resize(int width, int height) {}
     @Override
     public void show() {}
     @Override

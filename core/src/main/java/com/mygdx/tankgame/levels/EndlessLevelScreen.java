@@ -10,6 +10,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.mygdx.tankgame.MainMenuScreen;
 import com.mygdx.tankgame.TankGame;
 import com.mygdx.tankgame.buildstuff.Wall;
+import com.mygdx.tankgame.buildstuff.Wall2;
 import com.mygdx.tankgame.db.HighScoreDAO;
 import com.mygdx.tankgame.enemies.ChaserTank;
 import com.mygdx.tankgame.enemies.EnemyTank;
@@ -50,10 +51,10 @@ public class EndlessLevelScreen extends LevelScreen {
     @Override
     protected void setupLevel() {
         backgroundTexture = new Texture(Gdx.files.internal("background.jpg"));
-        addWall(new Wall(0,   0, 1280, 50));
-        addWall(new Wall(0, 670, 1280, 50));
-        addWall(new Wall(0,   0,   50, 720));
-        addWall(new Wall(1230,0,   50, 720));
+        addWall(new Wall2(0,   0, 1280, 50));
+        addWall(new Wall2(0, 670, 1280, 50));
+        addWall(new Wall2(0,   0,   50, 720));
+        addWall(new Wall2(1230,0,   50, 720));
     }
 
     @Override

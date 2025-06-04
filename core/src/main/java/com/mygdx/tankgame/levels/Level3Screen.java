@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.mygdx.tankgame.TankGame;
 import com.mygdx.tankgame.VictoryScreen;
 import com.mygdx.tankgame.buildstuff.Wall;
+import com.mygdx.tankgame.buildstuff.Wall2;
 import com.mygdx.tankgame.enemies.BossTank;
 import com.mygdx.tankgame.playertank.PlayerTank;
 
@@ -22,7 +23,7 @@ public class Level3Screen extends LevelScreen {
         backgroundTexture = new Texture(Gdx.files.internal(mapData.background));
 
         // Add all walls and obstacles
-        for (Wall wall : mapData.walls) {
+        for (Wall2 wall : mapData.walls) {
             addWall(wall);
         }
 

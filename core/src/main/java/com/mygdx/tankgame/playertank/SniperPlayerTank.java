@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import com.mygdx.tankgame.buildstuff.Wall2;
 import com.mygdx.tankgame.levels.LevelScreen; // Used to add the wall to the level.
 import com.mygdx.tankgame.buildstuff.Wall; // A simple Wall class.
 import com.mygdx.tankgame.bullets.Bullet;
@@ -54,7 +55,7 @@ public class SniperPlayerTank extends PlayerTank {
     }
 
     @Override
-    public void update(float deltaTime, List<Bullet> bullets, List<EnemyTank> enemyTanks) {
+    public void update(float deltaTime, List<Bullet> bullets, List<EnemyTank> enemyTanks, List<Wall2> walls) {
         // Update wall cooldown timer.
         if (wallCooldownTimer > 0) {
             wallCooldownTimer -= deltaTime;
@@ -105,7 +106,7 @@ public class SniperPlayerTank extends PlayerTank {
             setSpeed(normalSpeed);
         }
 
-        super.update(deltaTime, bullets, enemyTanks);
+        super.update(deltaTime, bullets, enemyTanks, walls);
     }
 
 
@@ -141,9 +142,7 @@ public class SniperPlayerTank extends PlayerTank {
 
         float wallWidth = 150f; // Increased wall width.
         float wallHeight = 20f;
-
-        // Create the wall with a lifetime of 3 seconds.
-        Wall wall = new Wall(wallX - wallWidth / 2, wallY - wallHeight / 2, wallWidth, wallHeight, 3f);
+        Wall2 wall = new Wall2(wallX - wallWidth / 2, wallY - wallHeight / 2, wallWidth, wallHeight);
 
         // Rotate the wall 90 degrees relative to the tank's facing direction so it blocks that area.
         wall.setRotation(getRotation() + 90);
