@@ -1,6 +1,7 @@
 package com.mygdx.tankgame.levels;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
@@ -9,7 +10,6 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.math.MathUtils;
 import com.mygdx.tankgame.MainMenuScreen;
 import com.mygdx.tankgame.TankGame;
-import com.mygdx.tankgame.buildstuff.Wall;
 import com.mygdx.tankgame.buildstuff.Wall2;
 import com.mygdx.tankgame.db.HighScoreDAO;
 import com.mygdx.tankgame.enemies.ChaserTank;
@@ -34,8 +34,14 @@ public class EndlessLevelScreen extends LevelScreen {
     private int highestScore;
     private BitmapFont highestScoreFont;
 
+    private boolean isGameOver = false;  // Flag kiểm soát trạng thái Game Over
+
+    private final int VIRTUAL_WIDTH = 1280;
+    private final int VIRTUAL_HEIGHT = 720;
+
     public EndlessLevelScreen(TankGame game, PlayerTank playerTank) {
         super(game, playerTank);
+
         warningTexture = new Texture(Gdx.files.internal("warning.png"));
         font = new BitmapFont();
         font.setColor(Color.WHITE);
@@ -45,7 +51,6 @@ public class EndlessLevelScreen extends LevelScreen {
         highestScoreFont.getData().setScale(1.5f);
 
         highestScore = HighScoreDAO.getHighestScore();
-
     }
 
     @Override
@@ -59,60 +64,97 @@ public class EndlessLevelScreen extends LevelScreen {
 
     @Override
     public void render(float delta) {
-        // 1) clear
+        Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        // 2) input
-        handleInput();
+        camera.update();
+        game.batch.setProjectionMatrix(camera.combined);
 
-        // 3) update everything (scoring happens in super call)a
-        updateGameElements(delta);
+        if (!isGameOver) {
+            handleInput();
+            updateGameElements(delta);
+        }
 
-        // 4) draw all in one batch
         game.batch.begin();
 
-        // background
-        game.batch.draw(backgroundTexture, 0, 0,
-            Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-
-        // level walls
+        game.batch.draw(backgroundTexture, 0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
         renderWalls();
-
-        // player
         playerTank.draw(game.batch);
 
-        // enemies & bullets
         for (EnemyTank e : enemies) e.render(game.batch);
         for (Bullet b : bullets)    b.draw(game.batch);
 
-        // warning icon
         if (isWarningActive) {
             game.batch.draw(warningTexture, warningX, warningY);
         }
 
-        // score top‑right
+        // Hiển thị điểm và điểm cao
         String s = "Score: " + score;
         GlyphLayout gl = new GlyphLayout(font, s);
-        float x = Gdx.graphics.getWidth() - gl.width - 10;
-        float y = Gdx.graphics.getHeight() - 10;
+        float x = VIRTUAL_WIDTH - gl.width - 10;
+        float y = VIRTUAL_HEIGHT - 10;
         font.setColor(Color.BLACK);
         font.draw(game.batch, s, x + 2, y - 2);
         font.setColor(Color.WHITE);
         font.draw(game.batch, s, x, y);
+
         String hs = "High Score: " + highestScore;
         GlyphLayout hsLayout = new GlyphLayout(highestScoreFont, hs);
-        float hsX = x - 100; // move left by 100 pixels
+        float hsX = x - hsLayout.width - 20;
         float hsY = y - 30;
-
         highestScoreFont.setColor(Color.BLACK);
         highestScoreFont.draw(game.batch, hs, hsX + 2, hsY - 2);
         highestScoreFont.setColor(Color.YELLOW);
         highestScoreFont.draw(game.batch, hs, hsX, hsY);
+
         game.batch.end();
+
+        // Nếu game over thì hiện giao diện Game Over và nút thử lại
+        if (isGameOver) {
+            game.batch.begin();
+
+            // Overlay đen mờ
+            Gdx.gl.glEnable(GL20.GL_BLEND);
+            game.batch.setColor(0, 0, 0, 0.7f);
+            game.batch.draw(backgroundTexture, 0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
+            game.batch.setColor(1, 1, 1, 1);
+
+            BitmapFont gameOverFont = new BitmapFont();
+            gameOverFont.getData().setScale(3f);
+            gameOverFont.setColor(Color.RED);
+            gameOverFont.draw(game.batch, "Game Over", VIRTUAL_WIDTH / 2f - 150, VIRTUAL_HEIGHT / 2f + 100);
+
+            font.setColor(Color.WHITE);
+            font.getData().setScale(2f);
+            font.draw(game.batch, "Your Score: " + score, VIRTUAL_WIDTH / 2f - 100, VIRTUAL_HEIGHT / 2f + 40);
+
+            highestScoreFont.draw(game.batch, "Highest Score: " + highestScore, VIRTUAL_WIDTH / 2f - 120, VIRTUAL_HEIGHT / 2f);
+
+            font.draw(game.batch, "Tap to Retry", VIRTUAL_WIDTH / 2f - 90, VIRTUAL_HEIGHT / 2f - 60);
+            font.draw(game.batch, "Press B to go to MainMenu", VIRTUAL_WIDTH / 2f - 140, VIRTUAL_HEIGHT / 2f - 100);
+
+            if (Gdx.input.isKeyJustPressed(Input.Keys.B)) {
+                game.setScreen(new MainMenuScreen(game));
+                dispose();
+            }
+            game.batch.end();
+
+            // Kiểm tra tap để thử lại
+            if (Gdx.input.justTouched()) {
+                retryGame();
+            }
+        }
+    }
+
+    @Override
+    public void resize(int width, int height) {
+        super.resize(width, height);
     }
 
     @Override
     protected void updateGameElements(float delta) {
+        if (isGameOver) return;  // Ngưng update khi game over
+
         int before = enemies.size();
         super.updateGameElements(delta);
         int killed = before - enemies.size();
@@ -121,15 +163,14 @@ public class EndlessLevelScreen extends LevelScreen {
             Gdx.app.log("DEBUG", "Killed " + killed + " → score=" + score);
         }
 
-        // kiểm tra nếu người chơi chết
         if (playerTank.isDestroyed()) {
-            saveScoreToDatabase();
-            game.setScreen(new MainMenuScreen(game)); // hoặc MainMenuScreen
-            dispose(); // giải phóng tài nguyên
+            if (!isGameOver) {
+                saveScoreToDatabase();
+                isGameOver = true;
+            }
             return;
         }
 
-        // spawn logic
         if (!isWarningActive) {
             spawnTimer += delta;
             if (spawnTimer >= spawnInterval) {
@@ -142,31 +183,36 @@ public class EndlessLevelScreen extends LevelScreen {
                 isWarningActive = false;
                 warningTimer = 0f;
                 spawnChaserTank();
-                spawnInterval = Math.max(minSpawnInterval,
-                    spawnInterval - spawnDecreaseRate);
+                spawnInterval = Math.max(minSpawnInterval, spawnInterval - spawnDecreaseRate);
             }
         }
     }
 
-
     private void activateWarning() {
         isWarningActive = true;
         warningTimer = 0f;
-        warningX = MathUtils.random(100, 1100);
-        warningY = MathUtils.random(100, 600);
+
+        // Spawn warning within virtual resolution
+        warningX = MathUtils.random(100, VIRTUAL_WIDTH - 100);
+        warningY = MathUtils.random(100, VIRTUAL_HEIGHT - 100);
     }
 
     public void spawnChaserTank() {
-        pendingEnemies.add(new ChaserTank(
-            warningX, warningY, playerTank, bullets));
+        pendingEnemies.add(new ChaserTank(warningX, warningY, playerTank, bullets));
     }
 
     @Override
     protected void goToUpgradeScreen() {
-        // never used in endless
+        // not used
     }
+
     public void saveScoreToDatabase() {
         HighScoreDAO.insertScore("Player", score);
+    }
+
+    private void retryGame() {
+        game.setScreen(new EndlessLevelScreen(game, new PlayerTank(100, 100)));
+        dispose();
     }
 
     @Override

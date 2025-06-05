@@ -30,6 +30,7 @@ public abstract class LevelScreen implements Screen {
     protected final List<Explosion> explosions;
     protected final List<EnemyTank> pendingEnemies;
     protected static List<Wall2> walls = new ArrayList<>();
+    protected static List<Wall> walls1 = new ArrayList<>();
     public static List<Explosion> globalExplosions = new ArrayList<>();
 
     // Camera & viewport for proper scaling & fullscreen support
@@ -185,32 +186,59 @@ public abstract class LevelScreen implements Screen {
         for (Wall2 wall : walls) {
             wall.draw(game.batch);
         }
+        for (Wall wall : walls1) {
+            wall.draw(game.batch);
+        }
     }
     protected abstract void setupLevel();
     public static void addWall(Wall2 wall) {
         walls.add(wall);
     }
-
+    public static void addWall1(Wall wall) {
+        walls1.add(wall);
+    }
     // Update walls: remove expired ones.
     protected void updateWalls(float delta) {
         for (Wall2 wall : walls) {
             wall.update(delta);
         }
+        Iterator<Wall> it1 = walls1.iterator();
+        while (it1.hasNext()) {
+            Wall wall = it1.next();
+            wall.update(delta);
+            if (wall.isExpired()) {
+                it1.remove();
+            }
+        }
     }
 
-    // Check for bullet-wall collisions.
-    protected void checkBulletWallCollisions() {
+    protected void checkBulletWallCollisions(List<Bullet> bullets, List<Wall> walls1, List<Wall2> walls2) {
         Iterator<Bullet> bulletIterator = bullets.iterator();
         while (bulletIterator.hasNext()) {
             Bullet bullet = bulletIterator.next();
-            for (Wall2 wall : walls) {
+            boolean collided = false;
+
+            // Check wall1
+            for (Wall wall : walls1) {
                 if (bullet.getBoundingRectangle().overlaps(wall.getBoundingRectangle())) {
                     bulletIterator.remove();
+                    collided = true;
                     break;
+                }
+            }
+
+            // If not already removed, check wall2
+            if (!collided) {
+                for (Wall2 wall : walls2) {
+                    if (bullet.getBoundingRectangle().overlaps(wall.getBoundingRectangle())) {
+                        bulletIterator.remove();
+                        break;
+                    }
                 }
             }
         }
     }
+
     void updateGameElements(float delta) {
         for (Bullet bullet : bullets) {
             bullet.update(delta);
@@ -218,7 +246,7 @@ public abstract class LevelScreen implements Screen {
         bullets.removeIf(Bullet::isOffScreen);
 
         // Check bullet collisions with walls.
-        checkBulletWallCollisions();
+        checkBulletWallCollisions(bullets,walls1,walls);
 
         playerTank.update(delta, bullets, enemies, walls);
 

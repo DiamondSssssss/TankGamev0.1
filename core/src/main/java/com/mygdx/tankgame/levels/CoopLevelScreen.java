@@ -59,7 +59,7 @@ public class CoopLevelScreen extends LevelScreen {
         }
         bullets.removeIf(Bullet::isOffScreen);
 
-        checkBulletWallCollisions();
+        checkBulletWallCollisions(bullets,walls1,walls);
 
         // Update players only if alive
         if (!playerTank.isDestroyed())

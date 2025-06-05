@@ -142,12 +142,12 @@ public class SniperPlayerTank extends PlayerTank {
 
         float wallWidth = 150f; // Increased wall width.
         float wallHeight = 20f;
-        Wall2 wall = new Wall2(wallX - wallWidth / 2, wallY - wallHeight / 2, wallWidth, wallHeight);
+        Wall wall = new Wall(wallX - wallWidth / 2, wallY - wallHeight / 2, wallWidth, wallHeight,3f);
 
         // Rotate the wall 90 degrees relative to the tank's facing direction so it blocks that area.
         wall.setRotation(getRotation() + 90);
 
-        LevelScreen.addWall(wall);
+        LevelScreen.addWall1(wall);
     }
 
     // --- Helper Methods Delegating to Tank ---
