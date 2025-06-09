@@ -3,9 +3,12 @@ package com.mygdx.tankgame.levels;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 import com.mygdx.tankgame.*;
 import com.mygdx.tankgame.buildstuff.ReviveCircle;
 import com.mygdx.tankgame.buildstuff.Wall;
@@ -25,12 +28,23 @@ public class CoopLevelScreen extends LevelScreen {
     // Arrow textures for indicating P1 and P2
     private Texture p1ArrowTexture;
     private Texture p2ArrowTexture;
+    private OrthographicCamera coopCamera;
+    private Viewport coopViewport;
 
     private static final float REVIVE_TIME = 3f; // seconds to revive
+    private static final float VIRTUAL_WIDTH = 1280;  // Virtual viewport width
+    private static final float VIRTUAL_HEIGHT = 720; // Virtual viewport height
 
     public CoopLevelScreen(TankGame game, PlayerTank playerOne, PlayerTank playerTwo) {
         super(game, playerOne);
         this.playerTwo = playerTwo;
+
+        // Create camera and viewport using virtual dimensions
+        coopCamera = new OrthographicCamera();
+        coopViewport = new FitViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, coopCamera);
+        coopViewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
+        coopCamera.position.set(VIRTUAL_WIDTH / 2, VIRTUAL_HEIGHT / 2, 0);
+        coopCamera.update();
 
         // Load arrow textures
         p1ArrowTexture = new Texture(Gdx.files.internal("p1.png"));
@@ -49,17 +63,23 @@ public class CoopLevelScreen extends LevelScreen {
 
     @Override
     public void render(float delta) {
+        // Clear screen
+        Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        // --- Update ---
+        // Update camera and set projection matrices
+        coopCamera.update();
+        game.batch.setProjectionMatrix(coopCamera.combined);
+        game.shapeRenderer.setProjectionMatrix(coopCamera.combined);
 
+        // --- Update ---
         // Update bullets
         for (Bullet bullet : bullets) {
             bullet.update(delta);
         }
         bullets.removeIf(Bullet::isOffScreen);
 
-        checkBulletWallCollisions(bullets,walls1,walls);
+        checkBulletWallCollisions(bullets, walls1, walls);
 
         // Update players only if alive
         if (!playerTank.isDestroyed())
@@ -92,8 +112,7 @@ public class CoopLevelScreen extends LevelScreen {
         updateWalls(delta);
 
         // --- Revive Logic ---
-
-// Spawn revive circles when a player just died and no revive circle exists for them
+        // Spawn revive circles when a player just died and no revive circle exists for them
         if (playerTank.isDestroyed() && !reviveCircleExistsFor(playerTank)) {
             reviveCircles.add(new ReviveCircle(playerTank.getPosition().x, playerTank.getPosition().y, REVIVE_TIME));
         }
@@ -101,20 +120,16 @@ public class CoopLevelScreen extends LevelScreen {
             reviveCircles.add(new ReviveCircle(playerTwo.getPosition().x, playerTwo.getPosition().y, REVIVE_TIME));
         }
 
-
         // Update each revive circle and check if the other player is standing inside
         Iterator<ReviveCircle> rcIter = reviveCircles.iterator();
         while (rcIter.hasNext()) {
             ReviveCircle rc = rcIter.next();
-
-            // Update the revive circle timer and draw position
             rc.update(delta);
 
             // Determine which player is dead for this revive circle
             PlayerTank deadPlayer = getDeadPlayerAt(rc.getX(), rc.getY());
 
             if (deadPlayer == null) {
-                // If no dead player at revive circle pos (maybe revived already), remove circle
                 rcIter.remove();
                 continue;
             }
@@ -124,14 +139,12 @@ public class CoopLevelScreen extends LevelScreen {
             if (!otherPlayer.isDestroyed() && rc.isPlayerInside(otherPlayer)) {
                 rc.incrementTimer(delta);
                 if (rc.getTimer() >= REVIVE_TIME) {
-                    // Revive the dead player at revive circle position
                     revive(deadPlayer, rc.getX(), rc.getY());
                     rcIter.remove();
                 }
             } else {
                 rc.resetTimer();
             }
-
         }
 
         // --- Check game over / level clear ---
@@ -161,14 +174,13 @@ public class CoopLevelScreen extends LevelScreen {
         if (!playerTwo.isDestroyed())
             playerTwo.draw(game.batch);
 
-        // Draw revive circles on top if any
-        // Draw revive progress bars at the top of the screen (if reviving)
-        // Begin sprite batch first for textures
+        // Draw revive circles
         for (ReviveCircle rc : reviveCircles) {
-            rc.draw(game.batch); // Draw the circle texture
+            rc.draw(game.batch);
         }
 
-// Then draw revive bars with ShapeRenderer
+        // Draw revive progress bars
+        game.shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         for (ReviveCircle rc : reviveCircles) {
             PlayerTank deadPlayer = getDeadPlayerAt(rc.getX(), rc.getY());
             if (deadPlayer == null) continue;
@@ -179,23 +191,19 @@ public class CoopLevelScreen extends LevelScreen {
                 float progress = rc.getTimer() / REVIVE_TIME;
                 float barWidth = 200;
                 float barHeight = 20;
-                float x = (Gdx.graphics.getWidth() - barWidth) / 2f;
-                float y = Gdx.graphics.getHeight() - 40; // 40 px from top
+                float x = (VIRTUAL_WIDTH - barWidth) / 2f;
+                float y = VIRTUAL_HEIGHT - 40;
 
-                game.shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
                 game.shapeRenderer.setColor(Color.DARK_GRAY);
                 game.shapeRenderer.rect(x, y, barWidth, barHeight);
 
                 game.shapeRenderer.setColor(Color.GREEN);
                 game.shapeRenderer.rect(x, y, barWidth * progress, barHeight);
-                game.shapeRenderer.end();
             }
         }
+        game.shapeRenderer.end();
 
-
-
-
-        // --- Draw arrow indicators above tanks ---
+        // Draw arrow indicators above tanks
         Sprite p1Sprite = playerTank.getSprite();
         Sprite p2Sprite = playerTwo.getSprite();
 
@@ -209,31 +217,15 @@ public class CoopLevelScreen extends LevelScreen {
             p2Sprite.getY() + p2Sprite.getHeight() + 10,
             20, 20);
 
-        // --- Draw health UI ---
-        int currentHealthOne = playerTank.getCurrentHealth();
-        for (int i = 0; i < currentHealthOne; i++) {
-            game.batch.draw(heartTexture,
-                heartMarginX + i * (heartWidth + 5),
-                Gdx.graphics.getHeight() - heartHeight - heartMarginY,
-                heartWidth,
-                heartHeight);
-        }
-
-        int currentHealthTwo = playerTwo.getCurrentHealth();
-        for (int i = 0; i < currentHealthTwo; i++) {
-            game.batch.draw(heartTexture,
-                Gdx.graphics.getWidth() - heartMarginX - heartWidth - i * (heartWidth + 5),
-                Gdx.graphics.getHeight() - heartHeight - heartMarginY,
-                heartWidth,
-                heartHeight);
-        }
+        // Draw health UI - now using virtual coordinates
+        drawHealthUI(playerTank.getCurrentHealth(), true);
+        drawHealthUI(playerTwo.getCurrentHealth(), false);
 
         game.batch.end();
     }
 
     private boolean reviveCircleExistsFor(PlayerTank player) {
         for (ReviveCircle rc : reviveCircles) {
-            // Use player.getPosition().x and .y instead of getX()/getY()
             if (rc.isAtPosition(player.getPosition().x, player.getPosition().y)) {
                 return true;
             }
@@ -252,7 +244,26 @@ public class CoopLevelScreen extends LevelScreen {
     }
 
     private boolean closeEnough(float a, float b) {
-        return Math.abs(a - b) < 5f; // small threshold for floating point comparison
+        return Math.abs(a - b) < 5f;
+    }
+
+    private void drawHealthUI(int currentHealth, boolean isPlayerOne) {
+        float heartMarginX = 20;
+        float heartMarginY = 20;
+        float heartWidth = 30;
+        float heartHeight = 30;
+
+        for (int i = 0; i < currentHealth; i++) {
+            float x;
+            if (isPlayerOne) {
+                x = heartMarginX + i * (heartWidth + 5);
+            } else {
+                x = VIRTUAL_WIDTH - heartMarginX - heartWidth - i * (heartWidth + 5);
+            }
+
+            float y = VIRTUAL_HEIGHT - heartHeight - heartMarginY;
+            game.batch.draw(heartTexture, x, y, heartWidth, heartHeight);
+        }
     }
 
     @Override
@@ -264,6 +275,13 @@ public class CoopLevelScreen extends LevelScreen {
         if (!player.isDestroyed()) return;
         player.reviveAt(x, y);
     }
+
+    @Override
+    public void resize(int width, int height) {
+        coopViewport.update(width, height, true);
+        coopCamera.position.set(VIRTUAL_WIDTH / 2, VIRTUAL_HEIGHT / 2, 0);
+    }
+
     @Override
     public void dispose() {
         super.dispose();

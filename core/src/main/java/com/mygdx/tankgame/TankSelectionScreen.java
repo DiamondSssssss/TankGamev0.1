@@ -45,7 +45,7 @@ public class TankSelectionScreen implements Screen {
         camera.update();
 
         // Load assets
-        backgroundTexture = new Texture(Gdx.files.internal("background.jpg"));
+        backgroundTexture = new Texture(Gdx.files.internal("tank_select.jpg"));
         basicTankTexture = new Texture(Gdx.files.internal("tank.png"));
         sniperTankTexture = new Texture(Gdx.files.internal("sniper_tank.png"));
         shotgunTankTexture = new Texture(Gdx.files.internal("shotgun_tank.png"));

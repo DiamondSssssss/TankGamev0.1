@@ -1,4 +1,5 @@
 package com.mygdx.tankgame;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
@@ -6,7 +7,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 
 public class WelcomeScreen implements Screen {
@@ -16,16 +17,21 @@ public class WelcomeScreen implements Screen {
     private Table table;
     private Skin skin;
 
+    // Define virtual width/height for consistent scaling
+    private static final int VIRTUAL_WIDTH = 1280;
+    private static final int VIRTUAL_HEIGHT = 720;
+
     public WelcomeScreen(TankGame game) {
         this.game = game;
     }
 
     @Override
     public void show() {
-        stage = new Stage(new ScreenViewport());
+        // Use StretchViewport to scale to any screen size
+        stage = new Stage(new StretchViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT));
         Gdx.input.setInputProcessor(stage);
 
-        background = new Texture("background.jpg"); // Ensure you have welcome.jpg in your assets folder
+        background = new Texture("welcome.jpg"); // Ensure this image is high resolution (1280x720 or more)
         skin = new Skin(Gdx.files.internal("uiskin.json"));
 
         table = new Table();
@@ -45,20 +51,22 @@ public class WelcomeScreen implements Screen {
         stage.addActor(table);
 
         startBtn.addListener(new ClickListener() {
-            @Override public void clicked(InputEvent event, float x, float y) {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
                 game.setScreen(new MainMenuScreen(game));
             }
         });
 
         highscoreBtn.addListener(new ClickListener() {
-            @Override public void clicked(InputEvent event, float x, float y) {
-                System.out.println("Highscore button clicked (implement screen later)");
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
                 game.setScreen(new HighScoreScreen(game));
             }
         });
 
         quitBtn.addListener(new ClickListener() {
-            @Override public void clicked(InputEvent event, float x, float y) {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
                 Gdx.app.exit();
             }
         });
@@ -69,8 +77,9 @@ public class WelcomeScreen implements Screen {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+        game.batch.setProjectionMatrix(stage.getCamera().combined);
         game.batch.begin();
-        game.batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        game.batch.draw(background, 0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
         game.batch.end();
 
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));

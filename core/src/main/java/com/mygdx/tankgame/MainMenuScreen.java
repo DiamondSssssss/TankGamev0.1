@@ -7,7 +7,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 
 public class MainMenuScreen implements Screen {
@@ -17,23 +17,27 @@ public class MainMenuScreen implements Screen {
     private Table table;
     private Skin skin;
 
+    // Define virtual resolution
+    private static final int VIRTUAL_WIDTH = 1280;
+    private static final int VIRTUAL_HEIGHT = 720;
+
     public MainMenuScreen(TankGame game) {
         this.game = game;
     }
 
     @Override
     public void show() {
-        stage = new Stage(new ScreenViewport());
+        // Use StretchViewport for fullscreen and resolution independence
+        stage = new Stage(new StretchViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT));
         Gdx.input.setInputProcessor(stage);
 
-        background = new Texture("menu.jpg"); // Image should be in assets/menu.jpg
-        skin = new Skin(Gdx.files.internal("uiskin.json")); // Your skin JSON file
+        background = new Texture("menu.jpg"); // Use high-res image (1280x720 or better)
+        skin = new Skin(Gdx.files.internal("uiskin.json"));
 
         table = new Table();
         table.setFillParent(true);
         table.center();
 
-        // Use default style for Label to avoid missing style error
         Label title = new Label("TANK GAME", skin);
         TextButton classicBtn = new TextButton("Classic Mode", skin);
         TextButton coopBtn = new TextButton("Coop Mode", skin);
@@ -49,27 +53,30 @@ public class MainMenuScreen implements Screen {
         stage.addActor(table);
 
         classicBtn.addListener(new ClickListener() {
-            @Override public void clicked(InputEvent event, float x, float y) {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
                 System.out.println("Switching to TankSelectionScreen with mode CLASSIC");
                 game.setScreen(new TankSelectionScreen(game, "CLASSIC"));
             }
         });
 
         coopBtn.addListener(new ClickListener() {
-            @Override public void clicked(InputEvent event, float x, float y) {
-                System.out.println("Switching to TankSelectionScreen with mode COOP");
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                System.out.println("Switching to CoopTankSelectionScreen");
                 game.setScreen(new CoopTankSelectionScreen(game));
             }
         });
 
         endlessBtn.addListener(new ClickListener() {
-            @Override public void clicked(InputEvent event, float x, float y) {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
                 System.out.println("Switching to TankSelectionScreen with mode ENDLESS");
                 game.setScreen(new TankSelectionScreen(game, "ENDLESS"));
             }
-    });
+        });
 
-        // You can add onlineBtn listener later if you want
+        // TODO: Implement onlineBtn functionality when ready
     }
 
     @Override
@@ -77,8 +84,9 @@ public class MainMenuScreen implements Screen {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+        game.batch.setProjectionMatrix(stage.getCamera().combined);
         game.batch.begin();
-        game.batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        game.batch.draw(background, 0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
         game.batch.end();
 
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
@@ -92,7 +100,9 @@ public class MainMenuScreen implements Screen {
 
     @Override public void pause() {}
     @Override public void resume() {}
-    @Override public void hide() {
+
+    @Override
+    public void hide() {
         Gdx.input.setInputProcessor(null);
     }
 

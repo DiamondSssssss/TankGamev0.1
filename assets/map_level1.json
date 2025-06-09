@@ -1,5 +1,5 @@
 {
-  "background": "background.jpg",
+  "background": "background2.jpg",
   "walls": [
     { "x": 0, "y": 0, "width": 1280, "height": 50 },
     { "x": 0, "y": 670, "width": 1280, "height": 50 },

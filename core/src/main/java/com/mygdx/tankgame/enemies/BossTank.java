@@ -47,7 +47,7 @@ public class BossTank extends EnemyTank {
         super(x, y, player, bullets);
         this.game = game;
         // Override the boss's texture.
-        this.texture = new Texture(Gdx.files.internal("boss_tank.jpg"));
+        this.texture = new Texture(Gdx.files.internal("boss.png"));
         this.sprite.setTexture(this.texture);
         // Set the base position to the initial position.
         this.basePosition = new Vector2(x, y);
