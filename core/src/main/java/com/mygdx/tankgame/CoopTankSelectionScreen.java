@@ -131,7 +131,10 @@ public class CoopTankSelectionScreen implements Screen {
                 default -> new PlayerTwoPlayerTank(100, 100);
             };
 
+            System.out.println("playerOne: " + playerOne);
+            System.out.println("playerTwo: " + playerTwo);
             game.setScreen(new CoopLevelScreen(game, playerOne, playerTwo));
+
         }
     }
 

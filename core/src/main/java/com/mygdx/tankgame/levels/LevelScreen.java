@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.*;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.mygdx.tankgame.Explosion;
@@ -327,5 +328,9 @@ public abstract class LevelScreen implements Screen {
         abilityTextureSniper.dispose();
         abilityTextureShotgun.dispose();
         // Dispose other resources if necessary.
+    }
+
+    public List<Wall2> getWalls() {
+        return walls;
     }
 }
