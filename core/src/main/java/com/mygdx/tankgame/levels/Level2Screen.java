@@ -4,8 +4,9 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.mygdx.tankgame.TankGame;
 import com.mygdx.tankgame.UpgradeScreen;
-import com.mygdx.tankgame.buildstuff.Wall;
 import com.mygdx.tankgame.buildstuff.Wall2;
+import com.mygdx.tankgame.enemies.ChaserTank;
+import com.mygdx.tankgame.enemies.EliteEnemyTank;
 import com.mygdx.tankgame.enemies.EnemyTank;
 import com.mygdx.tankgame.playertank.PlayerTank;
 
@@ -27,14 +28,28 @@ public class Level2Screen extends LevelScreen {
             addWall(wall);
         }
 
-        // Add enemies
-        for (float[] pos : mapData.enemyPositions) {
-            enemies.add(new EnemyTank(pos[0], pos[1], playerTank, bullets));
+        // Add enemies based on type
+        for (LevelMapLoader.EnemyData enemy : mapData.enemyData) {
+            switch (enemy.type) {
+                case "ChaserTank":
+                    enemies.add(new ChaserTank(enemy.x, enemy.y, playerTank, bullets));
+                    break;
+                case "EliteEnemyTank":
+                    enemies.add(new EliteEnemyTank(enemy.x, enemy.y, playerTank, bullets));
+                    break;
+                case "EnemyTank":
+                    enemies.add(new EnemyTank(enemy.x, enemy.y, playerTank, bullets));
+                    break;
+                default:
+                    Gdx.app.log("ERROR", "Unknown enemy type: " + enemy.type);
+                    enemies.add(new EnemyTank(enemy.x, enemy.y, playerTank, bullets)); // Fallback
+                    break;
+            }
         }
     }
 
     @Override
     protected void goToUpgradeScreen() {
-        game.setScreen(new UpgradeScreen(game, playerTank, 2)); // Go to Level 3
+        game.setScreen(new UpgradeScreen(game, playerTank, 2));
     }
 }

@@ -1,19 +1,18 @@
 {
   "background": "background2.jpg",
   "walls": [
-    { "x": 0, "y": 0, "width": 1280, "height": 50 },
-    { "x": 0, "y": 670, "width": 1280, "height": 50 },
-    { "x": 0, "y": 0, "width": 50, "height": 720 },
-    { "x": 1230, "y": 0, "width": 50, "height": 720 },
-    { "x": 200, "y": 200, "width": 200, "height": 20 },
-    { "x": 400, "y": 300, "width": 20, "height": 200 }
+    {"x": 0, "y": 0, "width": 1280, "height": 50},
+    {"x": 0, "y": 670, "width": 1280, "height": 50},
+    {"x": 0, "y": 0, "width": 50, "height": 720},
+    {"x": 1230, "y": 0, "width": 50, "height": 720},
+    {"x": 200, "y": 200, "width": 200, "height": 20}
   ],
   "obstacles": [
-    { "x": 600, "y": 200, "width": 80, "height": 80 },
-    { "x": 700, "y": 400, "width": 50, "height": 50 }
+    {"x": 800, "y": 500, "width": 80, "height": 80}
   ],
   "enemies": [
-    { "x": 150, "y": 600 },
-    { "x": 1100, "y": 600 }
+    {"type": "ChaserTank", "x": 150, "y": 600},
+    {"type": "EliteEnemyTank", "x": 500, "y": 600},
+    {"type": "EnemyTank", "x": 600, "y": 400}
   ]
 }
