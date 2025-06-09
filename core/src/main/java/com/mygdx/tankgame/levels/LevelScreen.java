@@ -4,11 +4,13 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.*;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.mygdx.tankgame.Explosion;
 import com.mygdx.tankgame.GameOverScreen;
+import com.mygdx.tankgame.MainMenuScreen;
 import com.mygdx.tankgame.TankGame;
 import com.mygdx.tankgame.buildstuff.Wall;
 import com.mygdx.tankgame.buildstuff.Wall2;
@@ -33,7 +35,7 @@ public abstract class LevelScreen implements Screen {
     protected static List<Wall2> walls = new ArrayList<>();
     protected static List<Wall> walls1 = new ArrayList<>();
     public static List<Explosion> globalExplosions = new ArrayList<>();
-
+    private BitmapFont font;
     // Camera & viewport for proper scaling & fullscreen support
     protected OrthographicCamera camera;
     protected Viewport viewport;
@@ -58,7 +60,8 @@ public abstract class LevelScreen implements Screen {
         explosions = new ArrayList<>();
         enemies = new ArrayList<>();
         pendingEnemies = new ArrayList<>();
-
+        font = new BitmapFont(); // Default font
+        font.getData().setScale(2); // Optional: make text larger
         // Initialize camera & viewport
         camera = new OrthographicCamera();
         viewport = new FitViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, camera);
@@ -88,7 +91,10 @@ public abstract class LevelScreen implements Screen {
     @Override
     public void render(float delta) {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
+        if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.B)) {
+            game.setScreen(new MainMenuScreen(game));
+            return;
+        }
         handleInput();
         updateGameElements(delta);
 
@@ -173,7 +179,7 @@ public abstract class LevelScreen implements Screen {
             game.batch.draw(bossBarTexture, iconX, iconY, iconWidth, overlayHeight);
             game.batch.setColor(Color.WHITE);
         }
-
+        font.draw(game.batch, "Press B to return to Main Menu", 20, 40);
         game.batch.end();
     }
 

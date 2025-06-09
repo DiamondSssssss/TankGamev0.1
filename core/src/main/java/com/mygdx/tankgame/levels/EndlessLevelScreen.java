@@ -66,7 +66,10 @@ public class EndlessLevelScreen extends LevelScreen {
     public void render(float delta) {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
+        if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.B)) {
+            game.setScreen(new MainMenuScreen(game));
+            return;
+        }
         camera.update();
         game.batch.setProjectionMatrix(camera.combined);
 
@@ -137,6 +140,7 @@ public class EndlessLevelScreen extends LevelScreen {
                 game.setScreen(new MainMenuScreen(game));
                 dispose();
             }
+            font.draw(game.batch, "Press B to return to Main Menu", 20, 40);
             game.batch.end();
 
             // Kiểm tra tap để thử lại

@@ -7,7 +7,9 @@
     { "x": 0, "y": 670, "width": 1280, "height": 50 }
   ],
   "obstacles": [],
-  "enemies": [
-    { "x": 350, "y": 600 }
-  ]
+  "boss": {
+    "type": "BossTank",
+    "x": 640,
+    "y": 360
+  }
 }
