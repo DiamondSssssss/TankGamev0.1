@@ -1,4 +1,4 @@
-package com.mygdx.tankgame;
+package com.mygdx.tankgame.Screen;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -9,67 +9,88 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.mygdx.tankgame.TankGame;
 
-public class WelcomeScreen implements Screen {
+public class MainMenuScreen implements Screen {
     private final TankGame game;
     private Stage stage;
     private Texture background;
     private Table table;
     private Skin skin;
 
-    // Define virtual width/height for consistent scaling
+    // Define virtual resolution
     private static final int VIRTUAL_WIDTH = 1280;
     private static final int VIRTUAL_HEIGHT = 720;
 
-    public WelcomeScreen(TankGame game) {
+    public MainMenuScreen(TankGame game) {
         this.game = game;
     }
 
     @Override
     public void show() {
-        // Use StretchViewport to scale to any screen size
+        // Use StretchViewport for fullscreen and resolution independence
         stage = new Stage(new StretchViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT));
         Gdx.input.setInputProcessor(stage);
 
-        background = new Texture("welcome.jpg"); // Ensure this image is high resolution (1280x720 or more)
+        background = new Texture("menu.jpg"); // Use high-res image (1280x720 or better)
         skin = new Skin(Gdx.files.internal("uiskin.json"));
 
         table = new Table();
         table.setFillParent(true);
         table.center();
 
-        Label title = new Label("WELCOME TO TANK GAME", skin);
-        TextButton startBtn = new TextButton("Start", skin);
-        TextButton highscoreBtn = new TextButton("High Scores", skin);
-        TextButton quitBtn = new TextButton("Quit", skin);
+        Label title = new Label("TANK GAME", skin);
+        TextButton classicBtn = new TextButton("Classic Mode", skin);
+        TextButton coopBtn = new TextButton("Coop Mode", skin);
+        TextButton endlessBtn = new TextButton("Endless Mode", skin);
+        TextButton onlineBtn = new TextButton("Online Mode", skin);
 
         table.add(title).padBottom(40).row();
-        table.add(startBtn).size(200, 60).padBottom(20).row();
-        table.add(highscoreBtn).size(200, 60).padBottom(20).row();
-        table.add(quitBtn).size(200, 60).padBottom(20).row();
+        table.add(classicBtn).size(250, 60).padBottom(20).row();
+        table.add(coopBtn).size(250, 60).padBottom(20).row();
+        table.add(endlessBtn).size(250, 60).padBottom(20).row();
+        table.add(onlineBtn).size(250, 60).padBottom(20).row();
+        // Back button setup
+        TextButton backButton = new TextButton("Back", skin);
+        Table topRightTable = new Table();
+        topRightTable.top().right();
+        topRightTable.setFillParent(true);
+        topRightTable.add(backButton).pad(10); // top right with padding
 
+        backButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                System.out.println("Returning to WelcomeScreen");
+                game.setScreen(new WelcomeScreen(game));
+            }
+        });
         stage.addActor(table);
-
-        startBtn.addListener(new ClickListener() {
+        stage.addActor(topRightTable);
+        classicBtn.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                game.setScreen(new MainMenuScreen(game));
+                System.out.println("Switching to TankSelectionScreen with mode CLASSIC");
+                game.setScreen(new TankSelectionScreen(game, "CLASSIC"));
             }
         });
 
-        highscoreBtn.addListener(new ClickListener() {
+        coopBtn.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                game.setScreen(new HighScoreScreen(game));
+                System.out.println("Switching to CoopTankSelectionScreen");
+                game.setScreen(new CoopTankSelectionScreen(game));
             }
         });
 
-        quitBtn.addListener(new ClickListener() {
+        endlessBtn.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                Gdx.app.exit();
+                System.out.println("Switching to TankSelectionScreen with mode ENDLESS");
+                game.setScreen(new TankSelectionScreen(game, "ENDLESS"));
             }
         });
+
+        // TODO: Implement onlineBtn functionality when ready
     }
 
     @Override

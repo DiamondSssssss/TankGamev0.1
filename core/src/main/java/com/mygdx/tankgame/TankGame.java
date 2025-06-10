@@ -1,9 +1,9 @@
 package com.mygdx.tankgame;
 
 import com.badlogic.gdx.Game;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.mygdx.tankgame.Screen.WelcomeScreen;
 
 public class TankGame extends Game {
     public SpriteBatch batch; // Fix: Make batch accessible

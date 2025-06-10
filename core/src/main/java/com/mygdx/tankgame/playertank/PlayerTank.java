@@ -11,7 +11,7 @@ import com.mygdx.tankgame.buildstuff.Wall;
 import com.mygdx.tankgame.buildstuff.Wall2;
 import com.mygdx.tankgame.levels.LevelScreen;
 import com.mygdx.tankgame.bullets.Bullet;
-import com.mygdx.tankgame.Explosion;
+import com.mygdx.tankgame.buildstuff.Explosion;
 import com.mygdx.tankgame.enemies.EnemyTank;
 
 import java.util.ArrayList;
@@ -362,4 +362,9 @@ public class PlayerTank{
 
     public void setWalls(List<Wall> sharedWalls) {
     }
+    public void setPosition(float x, float y) {
+        position.set(x, y);              // Update logical position
+        sprite.setPosition(x, y);        // Update visual position
+    }
+
 }

@@ -1,4 +1,4 @@
-package com.mygdx.tankgame;
+package com.mygdx.tankgame.Screen;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -9,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.mygdx.tankgame.TankGame;
 import com.mygdx.tankgame.db.HighScoreManager;
 
 import java.util.List;

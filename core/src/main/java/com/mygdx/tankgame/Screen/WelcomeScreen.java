@@ -1,4 +1,4 @@
-package com.mygdx.tankgame;
+package com.mygdx.tankgame.Screen;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -9,74 +9,68 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.mygdx.tankgame.TankGame;
 
-public class MainMenuScreen implements Screen {
+public class WelcomeScreen implements Screen {
     private final TankGame game;
     private Stage stage;
     private Texture background;
     private Table table;
     private Skin skin;
 
-    // Define virtual resolution
+    // Define virtual width/height for consistent scaling
     private static final int VIRTUAL_WIDTH = 1280;
     private static final int VIRTUAL_HEIGHT = 720;
 
-    public MainMenuScreen(TankGame game) {
+    public WelcomeScreen(TankGame game) {
         this.game = game;
     }
 
     @Override
     public void show() {
-        // Use StretchViewport for fullscreen and resolution independence
+        // Use StretchViewport to scale to any screen size
         stage = new Stage(new StretchViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT));
         Gdx.input.setInputProcessor(stage);
 
-        background = new Texture("menu.jpg"); // Use high-res image (1280x720 or better)
+        background = new Texture("welcome.jpg"); // Ensure this image is high resolution (1280x720 or more)
         skin = new Skin(Gdx.files.internal("uiskin.json"));
 
         table = new Table();
         table.setFillParent(true);
         table.center();
 
-        Label title = new Label("TANK GAME", skin);
-        TextButton classicBtn = new TextButton("Classic Mode", skin);
-        TextButton coopBtn = new TextButton("Coop Mode", skin);
-        TextButton endlessBtn = new TextButton("Endless Mode", skin);
-        TextButton onlineBtn = new TextButton("Online Mode", skin);
+        Label title = new Label("WELCOME TO TANK GAME", skin);
+        TextButton startBtn = new TextButton("Start", skin);
+        TextButton highscoreBtn = new TextButton("High Scores", skin);
+        TextButton quitBtn = new TextButton("Quit", skin);
 
         table.add(title).padBottom(40).row();
-        table.add(classicBtn).size(250, 60).padBottom(20).row();
-        table.add(coopBtn).size(250, 60).padBottom(20).row();
-        table.add(endlessBtn).size(250, 60).padBottom(20).row();
-        table.add(onlineBtn).size(250, 60).padBottom(20).row();
+        table.add(startBtn).size(200, 60).padBottom(20).row();
+        table.add(highscoreBtn).size(200, 60).padBottom(20).row();
+        table.add(quitBtn).size(200, 60).padBottom(20).row();
 
         stage.addActor(table);
 
-        classicBtn.addListener(new ClickListener() {
+        startBtn.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                System.out.println("Switching to TankSelectionScreen with mode CLASSIC");
-                game.setScreen(new TankSelectionScreen(game, "CLASSIC"));
+                game.setScreen(new MainMenuScreen(game));
             }
         });
 
-        coopBtn.addListener(new ClickListener() {
+        highscoreBtn.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                System.out.println("Switching to CoopTankSelectionScreen");
-                game.setScreen(new CoopTankSelectionScreen(game));
+                game.setScreen(new HighScoreScreen(game));
             }
         });
 
-        endlessBtn.addListener(new ClickListener() {
+        quitBtn.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                System.out.println("Switching to TankSelectionScreen with mode ENDLESS");
-                game.setScreen(new TankSelectionScreen(game, "ENDLESS"));
+                Gdx.app.exit();
             }
         });
-
-        // TODO: Implement onlineBtn functionality when ready
     }
 
     @Override

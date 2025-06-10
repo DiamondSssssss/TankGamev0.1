@@ -5,12 +5,11 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.mygdx.tankgame.Explosion;
-import com.mygdx.tankgame.GameOverScreen;
-import com.mygdx.tankgame.MainMenuScreen;
+import com.mygdx.tankgame.buildstuff.Explosion;
+import com.mygdx.tankgame.Screen.GameOverScreen;
+import com.mygdx.tankgame.Screen.MainMenuScreen;
 import com.mygdx.tankgame.TankGame;
 import com.mygdx.tankgame.buildstuff.Wall;
 import com.mygdx.tankgame.buildstuff.Wall2;
@@ -130,6 +129,7 @@ public abstract class LevelScreen implements Screen {
         }
 
         // Boss health bar and other UI elements should be drawn using scaled coordinates
+        // Boss health bar and other UI elements should be drawn using scaled coordinates
         for (EnemyTank enemy : enemies) {
             if (enemy instanceof BossTank) {
                 BossTank boss = (BossTank) enemy;
@@ -137,15 +137,19 @@ public abstract class LevelScreen implements Screen {
                 float barWidth = VIRTUAL_WIDTH * 0.6f;
                 float barHeight = 30f;
                 float barX = (VIRTUAL_WIDTH - barWidth) / 2;
-                float barY = (VIRTUAL_HEIGHT / 2f) - 100f;
+                float barY = VIRTUAL_HEIGHT - barHeight - 20f; // 20 pixels from top
+
                 game.batch.setColor(Color.RED);
                 game.batch.draw(bossBarTexture, barX, barY, barWidth, barHeight);
+
                 game.batch.setColor(Color.GREEN);
                 game.batch.draw(bossBarTexture, barX, barY, barWidth * healthPercentage, barHeight);
+
                 game.batch.setColor(Color.WHITE);
                 break;
             }
         }
+
 
         // Draw health hearts
         int currentHealth = playerTank.getCurrentHealth();

@@ -3,9 +3,11 @@ package com.mygdx.tankgame.enemies;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.mygdx.tankgame.buildstuff.Wall2;
 import com.mygdx.tankgame.bullets.Bullet;
-import com.mygdx.tankgame.Explosion;
+import com.mygdx.tankgame.buildstuff.Explosion;
 import com.mygdx.tankgame.playertank.PlayerTank;
 
 import java.util.List;
@@ -24,9 +26,32 @@ public class EliteEnemyTank extends EnemyTank {
         tankSprite = new Sprite(tankTexture);
         tankSprite.setPosition(x, y);
     }
+    private void chasePlayer(float delta, List<Wall2> walls) {
+        Vector2 playerPos = player.getPosition();
+        Vector2 direction = playerPos.cpy().sub(getPosition()).nor();
+        float speed = 80f; // Slightly slower than ChaserTank for balance
+        Vector2 movement = direction.scl(speed * delta);
 
-    @Override
-    public void update(float delta) {
+        Vector2 newPosition = getPosition().cpy().add(movement);
+        Rectangle futureRect = new Rectangle(newPosition.x, newPosition.y, tankSprite.getWidth(), tankSprite.getHeight());
+
+        boolean collides = false;
+        for (Wall2 wall : walls) {
+            if (wall.getBoundingRectangle().overlaps(futureRect)) {
+                collides = true;
+                break;
+            }
+        }
+
+        if (!collides) {
+            // Apply movement
+            getBoundingRectangle().setPosition(newPosition);
+            tankSprite.setPosition(newPosition.x, newPosition.y);
+            tankSprite.setRotation(direction.angleDeg());
+        }
+    }
+
+    public void update(float delta, List<Wall2> walls) {
         if (isDestroyed()) return;
 
         if (isExploding()) {
@@ -35,11 +60,14 @@ public class EliteEnemyTank extends EnemyTank {
             return;
         }
 
-        super.update(delta);
+        chasePlayer(delta, walls); // Movement logic
+        super.update(delta); // Any inherited behavior
 
-        // Update sprite position to follow tank logic (if moved)
+        // Sync sprite with new position
         tankSprite.setPosition(getBoundingRectangle().x, getBoundingRectangle().y);
     }
+
+
 
     @Override
     public void handleBulletCollision(List<Bullet> playerBullets, List<Explosion> explosions) {

@@ -1,4 +1,4 @@
-package com.mygdx.tankgame;
+package com.mygdx.tankgame.Screen;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.mygdx.tankgame.TankGame;
 import com.mygdx.tankgame.coop.*;
 import com.mygdx.tankgame.levels.CoopLevelScreen;
 import com.mygdx.tankgame.playertank.PlayerTank;
@@ -47,8 +48,8 @@ public class CoopTankSelectionScreen implements Screen {
         this.backgroundTexture = new Texture("tank_select.jpg");
         this.tankImages = new Texture[]{
             new Texture("tank.png"),
-            new Texture("sniper_tank.jpg"),
-            new Texture("shotgun_tank.jpg")
+            new Texture("sniper_tank.png"),
+            new Texture("shotgun_tank.png")
         };
     }
 

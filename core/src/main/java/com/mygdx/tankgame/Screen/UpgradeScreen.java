@@ -1,4 +1,4 @@
-package com.mygdx.tankgame;
+package com.mygdx.tankgame.Screen;
 
 import java.util.Random;
 
@@ -17,6 +17,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.mygdx.tankgame.TankGame;
 import com.mygdx.tankgame.levels.Level1Screen;
 import com.mygdx.tankgame.levels.Level2Screen;
 import com.mygdx.tankgame.levels.Level3Screen;
@@ -346,6 +347,7 @@ public class UpgradeScreen implements Screen {
     }
 
     private void returnToLevel() {
+        Gdx.input.setInputProcessor(null);
         switch (currentLevel) {
             case 1:
                 game.setScreen(new Level2Screen(game, playerTank));

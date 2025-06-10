@@ -8,7 +8,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.mygdx.tankgame.bullets.Bullet;
-import com.mygdx.tankgame.Explosion;
+import com.mygdx.tankgame.buildstuff.Explosion;
 import com.mygdx.tankgame.playertank.PlayerTank;
 
 import java.util.Iterator;

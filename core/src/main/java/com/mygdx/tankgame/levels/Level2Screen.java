@@ -3,7 +3,7 @@ package com.mygdx.tankgame.levels;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.mygdx.tankgame.TankGame;
-import com.mygdx.tankgame.UpgradeScreen;
+import com.mygdx.tankgame.Screen.UpgradeScreen;
 import com.mygdx.tankgame.buildstuff.Wall2;
 import com.mygdx.tankgame.enemies.ChaserTank;
 import com.mygdx.tankgame.enemies.EliteEnemyTank;
@@ -17,6 +17,7 @@ public class Level2Screen extends LevelScreen {
 
     @Override
     protected void setupLevel() {
+        playerTank.setPosition(100, 100);
         // Load level 2 map data
         LevelMapLoader.MapData mapData = LevelMapLoader.load("map_level2.json");
 

@@ -8,7 +8,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.mygdx.tankgame.buildstuff.Wall2;
 import com.mygdx.tankgame.bullets.Bullet;
-import com.mygdx.tankgame.Explosion;
+import com.mygdx.tankgame.buildstuff.Explosion;
 import com.mygdx.tankgame.levels.LevelScreen;
 import com.mygdx.tankgame.playertank.PlayerTank;
 import com.mygdx.tankgame.TankGame;

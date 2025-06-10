@@ -8,7 +8,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.math.MathUtils;
-import com.mygdx.tankgame.MainMenuScreen;
+import com.mygdx.tankgame.Screen.MainMenuScreen;
 import com.mygdx.tankgame.TankGame;
 import com.mygdx.tankgame.buildstuff.Wall2;
 import com.mygdx.tankgame.db.HighScoreDAO;
@@ -33,6 +33,10 @@ public class EndlessLevelScreen extends LevelScreen {
     private BitmapFont font;
     private int highestScore;
     private BitmapFont highestScoreFont;
+    private Texture heartTexture;
+    private final int MAX_HEARTS = 3; // for example
+    private final int HEART_SIZE = 32;
+    private final int HEART_SPACING = 10;
 
     private boolean isGameOver = false;  // Flag kiểm soát trạng thái Game Over
 
@@ -41,6 +45,7 @@ public class EndlessLevelScreen extends LevelScreen {
 
     public EndlessLevelScreen(TankGame game, PlayerTank playerTank) {
         super(game, playerTank);
+        heartTexture = new Texture(Gdx.files.internal("heart.jpg"));
 
         warningTexture = new Texture(Gdx.files.internal("warning.png"));
         font = new BitmapFont();
@@ -86,6 +91,14 @@ public class EndlessLevelScreen extends LevelScreen {
 
         for (EnemyTank e : enemies) e.render(game.batch);
         for (Bullet b : bullets)    b.draw(game.batch);
+// Draw player health hearts
+        int currentHearts = Math.min(playerTank.getCurrentHealth(), MAX_HEARTS); // assuming getHealth() exists
+
+        for (int i = 0; i < currentHearts; i++) {
+            float x = 20 + i * (HEART_SIZE + HEART_SPACING);
+            float y = VIRTUAL_HEIGHT - HEART_SIZE - 20;
+            game.batch.draw(heartTexture, x, y, HEART_SIZE, HEART_SIZE);
+        }
 
         if (isWarningActive) {
             game.batch.draw(warningTexture, warningX, warningY);
@@ -225,5 +238,7 @@ public class EndlessLevelScreen extends LevelScreen {
         warningTexture.dispose();
         font.dispose();
         highestScoreFont.dispose();
+        heartTexture.dispose();
+
     }
 }
